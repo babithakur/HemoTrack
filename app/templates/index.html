@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HemoTrack | Intelligent Anemia Management</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
+</head>
+<body>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                {% if category == 'success' %}
+                    <script>
+                    document.addEventListener("DOMContentLoaded", function() {
+                    var loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
+                    loginModal.show();
+                    });
+                    </script>
+                {% endif %}
+                {% if category == 'error' %}
+                    <script>
+                    document.addEventListener("DOMContentLoaded", function() {
+                    // Optionally auto-open the register modal again if there was an error
+                    var registerModal = new bootstrap.Modal(document.getElementById('registerModal'));
+                    registerModal.show();
+                    });
+                    </script>
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <nav class="navbar navbar-expand-lg navbar-light bg-white sticky-top shadow-sm">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <img src="{{ url_for('static', filename='images/logo2.png') }}" alt="HemoTrack" height="40" class="me-2">
+                HemoTrack
+            </a>
+            <button class="btn btn-outline-danger btn-sm px-4 rounded-pill" data-bs-toggle="modal" data-bs-target="#loginModal">Login</button>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6">
+                    <h1 class="mb-4">Master Your <span class="text-accent">Hemoglobin</span> Trends.</h1>
+                    <p class="lead text-secondary mb-5">
+                        HemoTrack uses AI-driven OCR and predictive analytics to organize medical reports and track anemia risks before they become symptoms.
+                    </p>
+                    <div class="d-flex gap-3">
+                        <button type="button" 
+                                class="btn btn-danger btn-lg px-5 rounded-pill shadow d-flex align-items-center justify-content-center"
+                                data-bs-toggle="modal" 
+                                data-bs-target="#registerModal">
+                                Get Started
+                        </button>
+                        
+                        <a href="#how-it-works" class="btn btn-outline-secondary btn-lg px-5 rounded-pill d-flex align-items-center justify-content-center">
+                            How it works
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-6 text-center mt-5 mt-lg-0">
+                    <img src="{{ url_for('static', filename='images/preview.png') }}" alt="App Preview" class="img-fluid rounded-3 shadow-lg">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-5 bg-white">
+        <div class="container py-5">
+            <div class="text-center mb-5">
+                <h2 class="fw-bold">Intelligent Health Features</h2>
+                <p class="text-muted">Built with advanced image processing and machine learning.</p>
+            </div>
+            
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="card feature-card p-4 shadow-sm border">
+                        <div class="icon-box">📄</div>
+                        <h5>Smart Extraction</h5>
+                        <p class="text-muted small">Auto-extract Hb values and dates from reports using OpenCV-enhanced OCR. Detects blur automatically via Laplacian variance.</p>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card feature-card p-4 shadow-sm border">
+                        <div class="icon-box">📈</div>
+                        <h5>Risk Prediction</h5>
+                        <p class="text-muted small">We use Linear Regression to forecast your anemia risk over time, categorizing levels based on clinical models.</p>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card feature-card p-4 shadow-sm border">
+                        <div class="icon-box">🔍</div>
+                        <h5>Semantic Search</h5>
+                        <p class="text-muted small">Find specific reports instantly with keyword and semantic search. All images are converted to searchable PDFs.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+<section id="how-it-works" class="py-5 bg-light">
+    <div class="container py-5">
+        <div class="text-center mb-5">
+            <h2 class="fw-bold">How HemoTrack Works</h2>
+            <p class="text-muted">From raw report to health insights in three simple steps.</p>
+        </div>
+
+        <div class="row text-center g-5">
+            <div class="col-md-4">
+                <div class="step-number mx-auto mb-4">1</div>
+                <div class="mb-4">
+                    <img src="{{ url_for('static', filename='images/upload_image.png') }}" alt="Upload" class="img-fluid rounded shadow-sm border">
+                </div>
+                <h5>Upload Medical Report</h5>
+                <p class="text-muted small">Upload your lab results as an image or PDF. Our OpenCV engine checks for clarity and blur instantly.</p>
+            </div>
+
+            <div class="col-md-4">
+                <div class="step-number mx-auto mb-4">2</div>
+                <div class="mb-4">
+                    <img src="{{ url_for('static', filename='images/image_analysis.png') }}" alt="Processing" class="img-fluid rounded shadow-sm border">
+                </div>
+                <h5>AI-Powered Analysis</h5>
+                <p class="text-muted small">Tesseract OCR extracts your Hemoglobin (Hb) levels and dates. Machine Learning categorizes the data automatically.</p>
+            </div>
+
+            <div class="col-md-4">
+                <div class="step-number mx-auto mb-4">3</div>
+                <div class="mb-4">
+                    <img src="{{ url_for('static', filename='images/predict_risk.png') }}" alt="Trends" class="img-fluid rounded shadow-sm border">
+                </div>
+                <h5>View Trends & Risk</h5>
+                <p class="text-muted small">See your Hb trajectory. Our Linear Regression model predicts future anemia risks and suggests dietary adjustments.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+    <footer class="bg-dark text-white py-5">
+        <div class="container text-center">
+            <h6 class="text-uppercase mb-4 opacity-50">Powered By Modern Stack</h6>
+            <div class="mb-4">
+                <span class="tech-pill">OpenCV</span>
+                <span class="tech-pill">Tesseract OCR</span>
+                <span class="tech-pill">Scikit-Learn</span>
+                <span class="tech-pill">Flask</span>
+                <span class="tech-pill">Laplacian Variance</span>
+            </div>
+            <hr class="my-4 opacity-25">
+            <p class="small mb-0">&copy; 2026 HemoTrack Health-Tech. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <div class="modal fade" id="registerModal" tabindex="-1" aria-labelledby="registerModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content border-0" style="border-radius: 20px; overflow: hidden;">
+                <div class="modal-body p-0">
+                    <div class="row g-0">
+                        <div class="col-lg-4 d-none d-lg-block bg-danger d-flex align-items-center justify-content-center text-white p-4 text-center">
+                            <div class="mt-5">
+                                <h4 class="fw-bold">Welcome!</h4>
+                                <p class="small opacity-75">Join HemoTrack today to start monitoring your health with precision.</p>
+                                <img src="{{ url_for('static', filename='images/logo3.png') }}" alt="Logo" height="50" class="mb-3">
+                            </div>
+                        </div>
+                        
+                        <div class="col-lg-8 p-4 p-md-5">
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <h3 class="fw-bold mb-0">Create <span class="text-danger">Account</span></h3>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            
+                            <form action="/register" method="POST">
+                                <div class="row g-3">
+                                    <div class="col-12">
+                                        <label class="form-label small fw-bold">Full Name</label>
+                                        <input type="text" name="name" class="form-control rounded-pill" placeholder="John Doe">
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label small fw-bold">Email Address</label>
+                                        <input type="email" name="email" class="form-control rounded-pill" placeholder="name@example.com">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label small fw-bold">Password</label>
+                                        <input type="password" name="password" class="form-control rounded-pill">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label small fw-bold">Confirm Password</label>
+                                        <input type="password" name="confirm_password" class="form-control rounded-pill">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label small fw-bold">Date of Birth</label>
+                                        <input type="date" name="dob" class="form-control rounded-pill">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label small fw-bold">Gender</label>
+                                        <select name="gender" class="form-select rounded-pill">
+                                            <option value="" selected disabled>Select...</option>
+                                            <option value="male">Male</option>
+                                            <option value="female">Female</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-12 mt-4">
+                                        <button type="submit" class="btn btn-danger btn-lg w-100 rounded-pill">Create Account</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0" style="border-radius: 20px;">
+                <div class="modal-body p-4 p-md-5">
+                    <div class="text-center mb-4">
+                        <img src="{{ url_for('static', filename='images/logo2.png') }}" alt="HemoTrack" height="50" class="mb-3">
+                        <h3 class="fw-bold">Welcome <span class="text-danger">Back</span></h3>
+                        <p class="text-muted small">Log in to view your hemoglobin trends</p>
+                    </div>
+    
+                    <form action="/login" method="POST">
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Email Address</label>
+                            <input type="email" name="email" class="form-control rounded-pill" placeholder="name@example.com" required>
+                        </div>
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between">
+                                <label class="form-label small fw-bold">Password</label>
+                                <a href="#" class="text-danger small text-decoration-none">Forgot?</a>
+                            </div>
+                            <input type="password" name="password" class="form-control rounded-pill" placeholder="••••••••" required>
+                        </div>
+                        
+                        <div class="form-check mb-4 small">
+                            <input class="form-check-input" type="checkbox" id="rememberMe">
+                            <label class="form-check-label text-muted" for="rememberMe">Remember me</label>
+                        </div>
+    
+                        <button type="submit" class="btn btn-danger btn-lg w-100 rounded-pill shadow-sm">Login</button>
+                    </form>
+    
+                    <div class="text-center mt-4">
+                        <p class="small text-muted mb-0">Don't have an account? 
+                            <a href="#" class="text-danger fw-bold text-decoration-none" data-bs-toggle="modal" data-bs-target="#registerModal">Register</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

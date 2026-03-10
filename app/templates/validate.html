@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HemoTrack | Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/validate.css') }}">
+</head>
+<body>
+<div class="validation-container">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-7 mb-4">
+                <div class="card doc-viewer-card p-3 shadow-sm border-0">
+                    <div class="d-flex justify-content-between align-items-center mb-3 px-2">
+                        <div class="nav nav-pills bg-light rounded-pill p-1" id="pills-tab" role="tablist">
+                            <button class="nav-link active rounded-pill px-3 py-1 small" id="original-tab" data-bs-toggle="pill" data-bs-target="#view-original">Original</button>
+                            <button class="nav-link rounded-pill px-3 py-1 small" id="ai-tab" data-bs-toggle="pill" data-bs-target="#view-preprocessed">AI Preprocessed</button>
+                        </div>
+                        
+                        <div class="text-end" style="min-width: 120px;">
+                            <small class="text-success fw-bold d-block mb-1">Clarity Score: 84%</small>
+                            <div class="blur-score-bar"><div class="blur-fill" style="width: 84%;"></div></div>
+                        </div>
+                    </div>
+                    
+                    <div class="tab-content report-preview-container" id="pills-tabContent">
+                        <div class="tab-pane fade show active" id="view-original">
+                            <img src="{{ url_for('static', filename='images/predict_risk.png') }}" class="img-fluid rounded" alt="Original Report">
+                        </div>
+                        <div class="tab-pane fade text-center" id="view-preprocessed">
+                            <div class="mb-2"><small class="text-light opacity-50">OpenCV: Adaptive Thresholding & Denoise Applied</small></div>
+                            <img src="{{ url_for('static', filename='images/image_analysis.png') }}" class="img-fluid rounded border border-secondary" alt="Preprocessed for OCR">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-5">
+                <div class="card verification-card p-4 p-md-5 border-0 shadow-sm">
+                    <div class="mb-4">
+                        <span class="badge ocr-badge mb-2">AI OCR ANALYSIS</span>
+                        <h3 class="fw-bold">Verify <span class="text-danger">Results</span></h3>
+                        <p class="text-muted small">Please ensure the values below match your physical report before saving to trends.</p>
+                    </div>
+
+                    <form action="/save-report" method="POST">
+                        <div class="mb-4">
+                            <label class="form-label fw-bold small text-uppercase">Extracted Hb Value</label>
+                            <div class="input-group input-group-lg hb-input-group">
+                                <input type="number" step="0.1" name="hb_value" 
+                                       class="form-control rounded-start-pill" 
+                                       value="{{ extracted_hb }}" required>
+                                <span class="input-group-text rounded-end-pill">g/dL</span>
+                            </div>
+                            <div class="form-text text-danger-emphasis fw-medium mt-2">
+                                <i class="bi bi-info-circle"></i> This value will be used for Anemia Prediction.
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-bold small text-uppercase">Report Date</label>
+                            <input type="date" name="report_date" 
+                                   class="form-control form-control-lg rounded-pill border-light-subtle" 
+                                   value="{{ extracted_date }}" required>
+                        </div>
+
+                        <div class="pt-2">
+                            <button type="submit" class="btn btn-danger btn-lg w-100 rounded-pill shadow mb-3">
+                                <i class="bi bi-shield-check me-2"></i>Confirm & Save
+                            </button>
+                            <a href="/dashboard" class="btn btn-outline-secondary w-100 rounded-pill text-decoration-none">
+                                <i class="bi bi-arrow-left me-2"></i>Discard & Retake
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

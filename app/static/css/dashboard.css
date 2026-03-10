@@ -1,0 +1,59 @@
+body { font-family: 'Inter', sans-serif; background-color: #f8f9fa; }
+        
+/* Sidebar Styling */
+.sidebar {
+    min-width: 280px;
+    max-width: 280px;
+    background: #fff;
+    min-height: 100vh;
+    border-right: 1px solid #eee;
+    position: fixed;
+}
+.main-content { margin-left: 280px; padding: 40px; }
+        
+.nav-link {
+    color: #6c757d;
+    font-weight: 500;
+    padding: 12px 20px;
+    border-radius: 10px;
+    margin: 4px 15px;
+    transition: all 0.2s;
+}
+
+.nav-link:hover, .nav-link.active {
+    background-color: #fff5f5;
+    color: #d32f2f;
+}
+
+.nav-link i { margin-right: 12px; font-size: 1.1rem; }
+
+.nav-link:focus, .nav-link:active {
+    color: #6c757d !important; 
+    outline: none;
+}
+
+/* Dashboard Cards */
+.stat-card {
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+    transition: transform 0.2s;
+}
+.stat-card:hover { transform: translateY(-5px); }
+        
+.search-bar {
+    background: #fff;
+    border: 1px solid #eee;
+    border-radius: 50px;
+    padding: 10px 25px;
+}
+
+.search-bar input { border: none; outline: none; width: 100%; margin-left: 10px; }
+
+.btn-upload {
+    background: #d32f2f;
+    color: white;
+    border-radius: 50px;
+    padding: 12px 25px;
+    font-weight: 600;
+}

@@ -1,0 +1,100 @@
+/* Validation Page Layout */
+.validation-container {
+    background-color: #f8f9fa;
+    min-height: 100vh;
+    padding: 60px 0;
+}
+
+/* Document Viewer Side */
+.doc-viewer-card {
+    position: sticky;
+    top: 20px;
+    border-radius: 20px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.report-preview-container {
+    max-height: 700px;
+    overflow-y: auto; /* Scroll if the report is long */
+    background: #525659; /* Classic PDF viewer dark background */
+    padding: 20px;
+    border-radius: 12px;
+}
+
+.report-preview-container img {
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    cursor: zoom-in; /* Indicates user can look closer */
+}
+
+/* Data Verification Side */
+.verification-card {
+    border-radius: 20px;
+    border: none;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.05);
+}
+
+.ocr-badge {
+    background: rgba(211, 47, 47, 0.1);
+    color: #d32f2f;
+    font-weight: 600;
+    font-size: 0.75rem;
+    letter-spacing: 1px;
+}
+
+/* Highlighting the extracted value */
+.hb-input-group .input-group-text {
+    background-color: #d32f2f;
+    color: white;
+    border: none;
+    padding: 0 25px;
+}
+
+.hb-input-group input {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #d32f2f;
+    border: 2px solid #fceaea;
+}
+
+.hb-input-group input:focus {
+    border-color: #d32f2f;
+    box-shadow: 0 0 0 0.25rem rgba(211, 47, 47, 0.1);
+}
+
+/* Blur Score Indicator */
+.blur-score-bar {
+    height: 8px;
+    background: #eee;
+    border-radius: 10px;
+    margin-top: 8px;
+}
+
+.blur-fill {
+    height: 100%;
+    border-radius: 10px;
+    background: linear-gradient(to right, #ffc107, #28a745); /* Yellow to Green */
+}
+
+/* Sidebar Nav-Pills for the Toggle */
+.nav-pills .nav-link {
+    color: #6c757d;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.nav-pills .nav-link.active {
+    background-color: #d32f2f; /* Hemo Red */
+    color: white !important;
+}
+
+/* Specific styling for the Preprocessed Image view */
+#view-preprocessed img {
+    filter: brightness(1.1); /* Slightly boost for visibility */
+    background: white; /* Ensures B&W text pops */
+}
+
+/* Animation for switching tabs */
+.tab-pane {
+    transition: opacity 0.4s ease-in-out;
+}
