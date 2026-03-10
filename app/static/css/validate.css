@@ -98,3 +98,27 @@
 .tab-pane {
     transition: opacity 0.4s ease-in-out;
 }
+
+
+/* Specific Histogram styling */
+.bg-light img {
+    max-height: 200px;
+    width: 100%;
+    object-fit: contain;
+}
+
+/* Alert styling to match HemoTrack theme */
+.alert-success {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+}
+
+.alert-warning {
+    background-color: #fff3e0;
+    color: #ef6c00;
+}
+
+/* Typography for the Variance Score */
+h1.display-3 {
+    letter-spacing: -2px;
+}
