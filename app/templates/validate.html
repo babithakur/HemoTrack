@@ -47,7 +47,7 @@
                         <p class="text-muted small">Please ensure the values below match your physical report before saving to trends.</p>
                     </div>
 
-                    <form action="/save-report" method="POST">
+                    <form action="/report/save-report" method="POST">
                         <div class="mb-4">
                             <label class="form-label fw-bold small text-uppercase">Extracted Hb Value</label>
                             <div class="input-group input-group-lg hb-input-group">
@@ -66,6 +66,17 @@
                             <input type="date" name="report_date" 
                                    class="form-control form-control-lg rounded-pill border-light-subtle" 
                                    value="{{ extracted_date }}" required>
+                        </div>
+
+                        <div class="col-md-6" style="width: 100%;">
+                            <div class="mb-3">
+                                <label class="form-label small fw-bold text-uppercase text-muted">Filename</label>
+                                <input type="text" name="filename" class="form-control rounded-pill" placeholder="e.g. Feb_Blood_Test">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label small fw-bold text-uppercase text-muted">Doctor Notes</label>
+                                <textarea name="doctor_note" class="form-control rounded-3" rows="3" placeholder="Any specific instructions or symptoms mentioned..."></textarea>
+                            </div>
                         </div>
 
                         <div class="pt-2">

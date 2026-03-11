@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, flash
+from flask import Blueprint, render_template, request, flash, redirect, url_for
 from app.service.report_service import ReportService
 
 report_bp = Blueprint("report", __name__)
@@ -6,12 +6,17 @@ report_bp = Blueprint("report", __name__)
 @report_bp.route("/blur_analysis", methods=["POST"])
 def blur_analysis():
     file = request.files.get("file")
-    filename = request.form.get("filename")
+    #filename = request.form.get("filename")
 
-    if not file or not filename:
-        flash("File and filename are required", "error")
+    # if not file or not filename:
+    #     flash("File and filename are required", "error")
+    #     return render_template("dashboard.html")
+    
+    if not file:
+        flash("File is required", "error")
         return render_template("dashboard.html")
     try:
+        filename = "temp_file"
         result = ReportService.analyze_blur(file, filename)
         # Pass results to template for display
         return render_template("blur_analysis.html", result=result)
@@ -39,18 +44,15 @@ def validate_report():
 
 @report_bp.route("/save-report", methods=["POST"])
 def save_report():
-    user_id = request.form.get("user_id")
     filename = request.form.get("filename")
     hemoglobin = request.form.get("hb_value")
     doctor_note = request.form.get("doctor_note")
     report_date = request.form.get("report_date")
-    image_path = request.form.get("image_path")  # path to uploaded file
-
     try:
-        report = ReportService.save_report(user_id, filename, hemoglobin, doctor_note, report_date, image_path)
+        report = ReportService.save_report(filename, hemoglobin, doctor_note, report_date)
         flash(f"Report saved successfully! Category: {report.category}", "success")
-        return redirect(url_for("dashboard"))
+        return redirect(url_for("user.dashboard"))
     except Exception as e:
         flash(f"Error saving report: {e}", "error")
-        return redirect(url_for("dashboard"))
+        return redirect(url_for("user.dashboard"))
 

@@ -3,7 +3,7 @@ from app.models.report import Report, ReportEmbedding
 
 class ReportRepo:
     @staticmethod
-    def save_report(user_id, category, filename, hemoglobin, doctor_note, report_date):
+    def save_report(user_id, category, hemoglobin, report_date, filename=None, doctor_note=None):
         report = Report(
             user_id=user_id,
             category=category,
