@@ -1,4 +1,5 @@
 import os
+import secrets 
 from werkzeug.utils import secure_filename
 from app.utils.blur_utils import check_blur_with_histogram
 from app.utils.ocr_utils import run_ocr
@@ -71,19 +72,24 @@ class ReportService:
         }
     
     @staticmethod
-    def save_report(filename, hemoglobin, doctor_note, report_date):
+    def save_report(hemoglobin, doctor_note, report_date):
         # normalize date
         if isinstance(report_date, str):
             report_date = datetime.strptime(report_date, "%Y-%m-%d").date()
         
-        #rename temp file to new filename
-        new_filename = None
+        # Parse the date string to extract month abbreviation and year
+        month_abbr = report_date.strftime("%b")  # e.g., "Feb"
+        year = report_date.strftime("%Y")        # e.g., "2026"
+        random_hex = secrets.token_hex(6 // 2)
+
+        new_filename_base = f"Report_{month_abbr}_{year}_{random_hex}"
+
+        # Rename temp file
         for file in os.listdir(UPLOAD_FOLDER):
             if "temp_file" in file:
                 old_path = os.path.join(UPLOAD_FOLDER, file)
-                # keep original extension
-                ext = os.path.splitext(file)[1]
-                new_filename = filename + ext
+                ext = os.path.splitext(file)[1]  # preserve original extension
+                new_filename = new_filename_base + ext
                 new_path = os.path.join(UPLOAD_FOLDER, new_filename)
                 os.rename(old_path, new_path)
                 break
@@ -104,7 +110,9 @@ class ReportService:
 
         # generate embedding from OCR text
         text_repr = f"Hb: {hemoglobin}, Date: {report_date}, Category: {category}, Keywords: {matched_keywords}"
-        vector = embedding_model.encode(text_repr).tolist()
+        #vector = embedding_model.encode(text_repr).tolist()
+        # convert to list of Python floats (float64)
+        vector = [float(x) for x in embedding_model.encode(text_repr).tolist()]
 
         ReportRepo.save_embedding(report.report_id, session["user_id"], vector)
 

@@ -44,12 +44,12 @@ def validate_report():
 
 @report_bp.route("/save-report", methods=["POST"])
 def save_report():
-    filename = request.form.get("filename")
+    #filename = request.form.get("filename")
     hemoglobin = request.form.get("hb_value")
     doctor_note = request.form.get("doctor_note")
     report_date = request.form.get("report_date")
     try:
-        report = ReportService.save_report(filename, hemoglobin, doctor_note, report_date)
+        report = ReportService.save_report(hemoglobin, doctor_note, report_date)
         flash(f"Report saved successfully! Category: {report.category}", "success")
         return redirect(url_for("user.dashboard"))
     except Exception as e:
