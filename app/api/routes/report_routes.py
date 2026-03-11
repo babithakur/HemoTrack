@@ -3,10 +3,6 @@ from app.service.report_service import ReportService
 
 report_bp = Blueprint("report", __name__)
 
-@report_bp.route("/validate")
-def validate():
-    return render_template("validate.html")
-
 @report_bp.route("/blur_analysis", methods=["POST"])
 def blur_analysis():
     file = request.files.get("file")
@@ -22,3 +18,39 @@ def blur_analysis():
     except Exception as e:
         flash(str(e), "error")
         return render_template("dashboard.html")
+
+@report_bp.route("/validate", methods=["GET"])
+def validate_report():
+    filename = request.args.get("filename")  #reuse filename from blur analysis
+
+    try:
+        result = ReportService.validate_report(filename)
+        ReportService.validate_report(filename)
+        return render_template("validate.html", 
+                               extracted_hb=result["hb_value"],
+                               extracted_date=result["report_date"],
+                               original_image=result["original_image"],
+                               preprocessed_image=result["preprocessed_image"])
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        flash(str(e), "error")
+        return render_template("dashboard.html") 
+
+@report_bp.route("/save-report", methods=["POST"])
+def save_report():
+    user_id = request.form.get("user_id")
+    filename = request.form.get("filename")
+    hemoglobin = request.form.get("hb_value")
+    doctor_note = request.form.get("doctor_note")
+    report_date = request.form.get("report_date")
+    image_path = request.form.get("image_path")  # path to uploaded file
+
+    try:
+        report = ReportService.save_report(user_id, filename, hemoglobin, doctor_note, report_date, image_path)
+        flash(f"Report saved successfully! Category: {report.category}", "success")
+        return redirect(url_for("dashboard"))
+    except Exception as e:
+        flash(f"Error saving report: {e}", "error")
+        return redirect(url_for("dashboard"))
+

@@ -29,11 +29,11 @@
                     
                     <div class="tab-content report-preview-container" id="pills-tabContent">
                         <div class="tab-pane fade show active" id="view-original">
-                            <img src="{{ url_for('static', filename='images/predict_risk.png') }}" class="img-fluid rounded" alt="Original Report">
+                            <img src="{{ url_for('static', filename='uploads/' ~ original_image) }}" class="img-fluid rounded" alt="Original Report">
                         </div>
                         <div class="tab-pane fade text-center" id="view-preprocessed">
                             <div class="mb-2"><small class="text-light opacity-50">OpenCV: Adaptive Thresholding & Denoise Applied</small></div>
-                            <img src="{{ url_for('static', filename='images/image_analysis.png') }}" class="img-fluid rounded border border-secondary" alt="Preprocessed for OCR">
+                            <img src="{{ url_for('static', filename='preprocessed/' ~ preprocessed_image) }}" class="img-fluid rounded border border-secondary" alt="Preprocessed for OCR">
                         </div>
                     </div>
                 </div>
