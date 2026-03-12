@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HemoTrack | Dashboard</title>
+    <title>HemoTrack | Blur Analysis</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
@@ -79,12 +79,25 @@
     
                 <div class="col-md-4">
                     <div class="card border-0 shadow-sm p-4 bg-white h-100 d-flex flex-column justify-content-center" style="border-radius: 20px;">
-                        <a href="/report/validate?filename={{ result.image_filename }}" class="btn btn-danger btn-lg w-100 rounded-pill shadow mb-3">
+                
+                        {% if result.category == "others" %}
+                        <form action="/report/save-report" method="POST">
+                            <input type="hidden" name="filename" value="{{ result.image_filename }}">
+                            <button type="submit" class="btn btn-danger btn-lg w-100 rounded-pill shadow mb-3">
+                                Save the Report
+                            </button>
+                        </form>
+                        {% else %}
+                        <a href="/report/validate?filename={{ result.image_filename }}" 
+                           class="btn btn-danger btn-lg w-100 rounded-pill shadow mb-3">
                             Proceed to OCR
                         </a>
+                        {% endif %}
+                
                         <a href="/dashboard" class="btn btn-outline-secondary btn-lg w-100 rounded-pill">
                             Retake Photo
                         </a>
+                
                     </div>
                 </div>
             </div>

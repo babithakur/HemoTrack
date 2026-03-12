@@ -7,13 +7,14 @@ from datetime import datetime
 from sentence_transformers import SentenceTransformer
 from app.repo.report_repo import ReportRepo
 from app.utils.report_utils import categorize_report
-from flask import session
+from flask import session, current_app
+from PIL import Image,  ImageOps
 
 
 UPLOAD_FOLDER = "app/static/uploads"
 HISTOGRAM_FOLDER = "app/static/histograms"
 PREPROCESSED_FOLDER = "app/static/preprocessed"
-embedding_model = SentenceTransformer("all-MiniLM-L6-v2")
+#embedding_model = SentenceTransformer("all-MiniLM-L6-v2")
 
 class ReportService:
     @staticmethod
@@ -26,6 +27,7 @@ class ReportService:
         safe_filename = secure_filename(filename) + os.path.splitext(file.filename)[1]
         image_path = os.path.join(UPLOAD_FOLDER, safe_filename)
         file.save(image_path)
+        category, matched_keywords = categorize_report(image_path)
 
         #histogram image path
         histogram_filename = safe_filename.replace(".", "_hist.")
@@ -40,7 +42,8 @@ class ReportService:
             "variance_value": round(variance, 2),
             "threshold": threshold,
             "image_filename": image_filename,
-            "histogram_image_filename": histogram_image_filename
+            "histogram_image_filename": histogram_image_filename,
+            "category": category
         }
     
     @staticmethod
@@ -73,30 +76,58 @@ class ReportService:
     
     @staticmethod
     def save_report(hemoglobin, doctor_note, report_date):
-        # normalize date
-        if isinstance(report_date, str):
-            report_date = datetime.strptime(report_date, "%Y-%m-%d").date()
-        
-        # Parse the date string to extract month abbreviation and year
-        month_abbr = report_date.strftime("%b")  # e.g., "Feb"
-        year = report_date.strftime("%Y")        # e.g., "2026"
         random_hex = secrets.token_hex(6 // 2)
+        if report_date:
+            # normalize date
+            if isinstance(report_date, str):
+                report_date = datetime.strptime(report_date, "%Y-%m-%d").date()
+        
+            # Parse the date string to extract month abbreviation and year
+            month_abbr = report_date.strftime("%b")  # e.g., "Feb"
+            year = report_date.strftime("%Y")        # e.g., "2026"
+            new_filename_base = f"Report_{month_abbr}_{year}_{random_hex}"
+            category = "hematology"
+        else:
+            new_filename_base = f"Report_{random_hex}"
+            category = "others"
+        
+        new_filename = None
 
-        new_filename_base = f"Report_{month_abbr}_{year}_{random_hex}"
-
-        # Rename temp file
+        # Find temp image
         for file in os.listdir(UPLOAD_FOLDER):
             if "temp_file" in file:
                 old_path = os.path.join(UPLOAD_FOLDER, file)
-                ext = os.path.splitext(file)[1]  # preserve original extension
-                new_filename = new_filename_base + ext
+                # PDF filename
+                new_filename = new_filename_base + ".pdf"
                 new_path = os.path.join(UPLOAD_FOLDER, new_filename)
-                os.rename(old_path, new_path)
+                # Convert image to PDF
+                image = Image.open(old_path)
+                # Fix rotation
+                image = ImageOps.exif_transpose(image)
+                # Convert to RGB (important for PNG/JPG compatibility)
+                if image.mode != "RGB":
+                    image = image.convert("RGB")
+                image.save(new_path, "PDF", resolution=100.0)
+                # Remove original image
+                os.remove(old_path)
                 break
 
+        if not new_filename:
+            raise ValueError("Temp file not found")
+
+        # Rename temp file
+        # for file in os.listdir(UPLOAD_FOLDER):
+        #     if "temp_file" in file:
+        #         old_path = os.path.join(UPLOAD_FOLDER, file)
+        #         ext = os.path.splitext(file)[1]  # preserve original extension
+        #         new_filename = new_filename_base + ext
+        #         new_path = os.path.join(UPLOAD_FOLDER, new_filename)
+        #         os.rename(old_path, new_path)
+        #         break
+
         # categorize report using OCR keywords
-        image_path = os.path.join(UPLOAD_FOLDER, new_filename)
-        category, matched_keywords = categorize_report(image_path)
+        #image_path = os.path.join(UPLOAD_FOLDER, new_filename)
+        #category, matched_keywords = categorize_report(image_path)
 
         # save report
         report = ReportRepo.save_report(
@@ -109,11 +140,47 @@ class ReportService:
         )
 
         # generate embedding from OCR text
-        text_repr = f"Hb: {hemoglobin}, Date: {report_date}, Category: {category}, Keywords: {matched_keywords}"
-        #vector = embedding_model.encode(text_repr).tolist()
+        #text_repr = f"Hb: {hemoglobin}, Date: {report_date}, Category: {category}, Keywords: {matched_keywords}"
         # convert to list of Python floats (float64)
-        vector = [float(x) for x in embedding_model.encode(text_repr).tolist()]
+        #vector = [float(x) for x in embedding_model.encode(text_repr).tolist()]
 
-        ReportRepo.save_embedding(report.report_id, session["user_id"], vector)
+        #ReportRepo.save_embedding(report.report_id, session["user_id"], vector)
 
         return report
+    
+    @staticmethod
+    def get_user_reports():
+        user_id = session.get("user_id")
+
+        if not user_id:
+            return [], []
+
+        reports = ReportRepo.get_reports_by_user(user_id)
+
+        hematology_reports = []
+        other_reports = []
+
+        for report in reports:
+            if report.category == "hematology":
+                hematology_reports.append(report)
+            else:
+                other_reports.append(report)
+
+        return hematology_reports, other_reports
+    
+    @staticmethod
+    def delete_report(report_id):
+        report = ReportRepo.get_report_by_id(report_id)
+        user_id = session.get("user_id")
+        if not report or report.user_id != user_id:
+            return False
+
+        # Delete file from uploads folder
+        file_path = os.path.join(UPLOAD_FOLDER, report.filename)
+
+        if os.path.exists(file_path):
+            os.remove(file_path)
+
+        # Delete from database
+        ReportRepo.delete_report(report)
+        return True

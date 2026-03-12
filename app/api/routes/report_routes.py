@@ -56,3 +56,26 @@ def save_report():
         flash(f"Error saving report: {e}", "error")
         return redirect(url_for("user.dashboard"))
 
+@report_bp.route("/my-reports", methods=["GET"])
+def my_reports():
+    hematology_reports, other_reports = ReportService.get_user_reports()
+
+    return render_template(
+        "my_reports.html",
+        hematology_reports=hematology_reports,
+        other_reports=other_reports
+    )
+
+@report_bp.route("/hb-analytics", methods=["GET"])
+def hb_analytics():
+    return render_template("hb_analytics.html")
+
+@report_bp.route("/delete/<int:report_id>", methods=["POST", "GET"])
+def delete_report(report_id):
+    success = ReportService.delete_report(report_id=report_id)
+
+    if success:
+        flash("Report deleted successfully.", "success")
+    else:
+        flash("Could not delete report. Report may not exist or belong to you.", "danger")
+    return redirect(url_for("report.my_reports"))

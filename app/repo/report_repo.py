@@ -3,7 +3,7 @@ from app.models.report import Report, ReportEmbedding
 
 class ReportRepo:
     @staticmethod
-    def save_report(user_id, category, hemoglobin, report_date, filename=None, doctor_note=None):
+    def save_report(user_id, category, hemoglobin=None, report_date=None, filename=None, doctor_note=None):
         report = Report(
             user_id=user_id,
             category=category,
@@ -26,3 +26,23 @@ class ReportRepo:
         db.session.add(embedding)
         db.session.commit()
         return embedding
+    
+    @staticmethod
+    def get_reports_by_user(user_id):
+        reports = (
+            Report.query
+            .filter_by(user_id=user_id)
+            .order_by(Report.created_at.desc())
+            .all()
+        )
+
+        return reports
+    
+    @staticmethod
+    def get_report_by_id(report_id):
+        return Report.query.get(report_id)
+
+    @staticmethod
+    def delete_report(report):
+        db.session.delete(report)
+        db.session.commit()
