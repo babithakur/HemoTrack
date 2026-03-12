@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, flash, redirect, url_for
+from flask import Blueprint, render_template, request, flash, redirect, url_for, session
 from app.service.report_service import ReportService
 
 report_bp = Blueprint("report", __name__)
@@ -66,10 +66,6 @@ def my_reports():
         other_reports=other_reports
     )
 
-@report_bp.route("/hb-analytics", methods=["GET"])
-def hb_analytics():
-    return render_template("hb_analytics.html")
-
 @report_bp.route("/delete/<int:report_id>", methods=["POST", "GET"])
 def delete_report(report_id):
     success = ReportService.delete_report(report_id=report_id)
@@ -79,3 +75,11 @@ def delete_report(report_id):
     else:
         flash("Could not delete report. Report may not exist or belong to you.", "danger")
     return redirect(url_for("report.my_reports"))
+
+@report_bp.route("/hb-analytics", methods=["GET"])
+def hb_analytics():
+    try:
+        result = ReportService.predict_anemia(session["user_id"])
+        return render_template("hb_analytics.html", result=result)
+    except Exception as e:
+        return {"error": str(e)}, 400

@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session
 from app.service.user_service import UserService
 from app.utils.auth import login_required
+from app.service.report_service import ReportService
 
 user_bp = Blueprint("user", __name__)
 
@@ -11,7 +12,17 @@ def index():
 @user_bp.route("/dashboard")
 @login_required
 def dashboard():
-    return render_template("dashboard.html", name=session.get("name"))
+    user_id = session["user_id"]
+    try:
+        prediction = ReportService.predict_anemia(user_id)
+    except Exception as e:
+        prediction = None
+
+    return render_template(
+        "dashboard.html",
+        name=session.get("name"),
+        prediction=prediction
+    )
 
 @user_bp.route("/register", methods=["POST"])
 def register():

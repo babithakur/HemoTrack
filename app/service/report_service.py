@@ -9,7 +9,7 @@ from app.repo.report_repo import ReportRepo
 from app.utils.report_utils import categorize_report
 from flask import session, current_app
 from PIL import Image,  ImageOps
-
+from app.utils.hb_prediction_util import HbPredictionUtil
 
 UPLOAD_FOLDER = "app/static/uploads"
 HISTOGRAM_FOLDER = "app/static/histograms"
@@ -115,20 +115,6 @@ class ReportService:
         if not new_filename:
             raise ValueError("Temp file not found")
 
-        # Rename temp file
-        # for file in os.listdir(UPLOAD_FOLDER):
-        #     if "temp_file" in file:
-        #         old_path = os.path.join(UPLOAD_FOLDER, file)
-        #         ext = os.path.splitext(file)[1]  # preserve original extension
-        #         new_filename = new_filename_base + ext
-        #         new_path = os.path.join(UPLOAD_FOLDER, new_filename)
-        #         os.rename(old_path, new_path)
-        #         break
-
-        # categorize report using OCR keywords
-        #image_path = os.path.join(UPLOAD_FOLDER, new_filename)
-        #category, matched_keywords = categorize_report(image_path)
-
         # save report
         report = ReportRepo.save_report(
             user_id=session["user_id"],
@@ -184,3 +170,12 @@ class ReportService:
         # Delete from database
         ReportRepo.delete_report(report)
         return True
+    
+    @staticmethod
+    def predict_anemia(user_id):
+        reports = ReportRepo.get_user_hb_reports(user_id)
+        if not reports:
+            raise ValueError("No hemoglobin reports found")
+
+        result = HbPredictionUtil.predict_hb_and_graph(reports)
+        return result

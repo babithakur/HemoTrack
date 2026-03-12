@@ -46,3 +46,13 @@ class ReportRepo:
     def delete_report(report):
         db.session.delete(report)
         db.session.commit()
+    
+    @staticmethod
+    def get_user_hb_reports(user_id):
+        return (
+            Report.query
+            .filter(Report.user_id == user_id)
+            .filter(Report.hemoglobin != None)
+            .order_by(Report.report_date.asc())
+            .all()
+        )

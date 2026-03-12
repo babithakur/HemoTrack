@@ -54,13 +54,25 @@
         {% endwith %}
         <div class="d-flex justify-content-between align-items-center mb-5">
             <div>
-                <h2 class="fw-bold">Welcome back, {{ name }}!</h2>
-                <p class="text-muted">Your hemoglobin levels are trending upwards.</p>
+                <h2 class="fw-bold">
+                    Track. Predict. Stay Healthy.
+                </h2>
+                <p class="text-muted">
+                    {% if prediction %}
+                        Your hemoglobin levels are 
+                        {% if prediction.slope_per_week > 0 %}
+                            trending upwards 📈
+                        {% elif prediction.slope_per_week < 0 %}
+                            trending downwards 📉
+                        {% else %}
+                            stable ⬜
+                        {% endif %}
+                        .
+                    {% else %}
+                        No trend data available.
+                    {% endif %}
+                </p>
             </div>
-            <!-- <div class="search-bar d-flex align-items-center w-25">
-                <i class="bi bi-search text-muted"></i>
-                <input type="text" placeholder="Semantic search (e.g. 'Reports from Feb')">
-            </div> -->
         </div>
 
         <div class="row g-4 mb-5">
@@ -68,16 +80,27 @@
                 <div class="card stat-card p-4 bg-white">
                     <small class="text-muted fw-bold text-uppercase">Latest Hb Level</small>
                     <div class="d-flex align-items-end mt-2">
-                        <h2 class="mb-0 fw-bold">13.8</h2>
-                        <span class="ms-2 text-success small mb-1"><i class="bi bi-caret-up-fill"></i> 0.5 g/dL</span>
+                        {% if prediction %}
+                        <h2 class="mb-0 fw-bold">{{ prediction.predicted_hb }}</h2>
+                        <span class="ms-2 {% if prediction.predicted_hb >= 12 %}text-success{% else %}text-danger{% endif %} small mb-1">
+                            {% if prediction.slope_per_week >= 0 %}<i class="bi bi-caret-up-fill"></i>{% else %}<i class="bi bi-caret-down-fill"></i>{% endif %}
+                            {{ prediction.slope_per_week }} g/dL/week
+                        </span>
+                        {% else %}
+                        <h2 class="mb-0 fw-bold">-</h2>
+                        {% endif %}
                     </div>
-                    <p class="mt-2 mb-0 badge bg-success-subtle text-success rounded-pill">Status: Normal</p>
+                    <p class="mt-2 mb-0 badge {% if prediction and prediction.predicted_hb >= 12 %}bg-success-subtle text-success{% else %}bg-danger-subtle text-danger{% endif %} rounded-pill">
+                        {% if prediction %}Status: {{ prediction.anemia_type }}{% else %}Status: N/A{% endif %}
+                    </p>
                 </div>
             </div>
             <div class="col-md-4">
                 <div class="card stat-card p-4 bg-white">
-                    <small class="text-muted fw-bold text-uppercase">Predicted Risk (90 Days)</small>
-                    <h2 class="mt-2 mb-0 fw-bold">Low</h2>
+                    <small class="text-muted fw-bold text-uppercase">Predicted Risk (30 Days)</small>
+                    <h2 class="mt-2 mb-0 fw-bold {% if prediction.risk == 'Yes' %}text-danger{% else %}text-success{% endif %}">
+                        {% if prediction.risk == "Yes" %}High{% else %}Low{% endif %}
+                    </h2>
                     <p class="mt-2 mb-0 text-muted small">Based on Linear Regression analysis</p>
                 </div>
             </div>
@@ -85,19 +108,40 @@
                 <div class="card stat-card p-4 text-white bg-dark">
                     <small class="opacity-75 fw-bold text-uppercase">Action Required</small>
                     <h5 class="mt-2 mb-3">Improve Iron Intake</h5>
-                    <button class="btn btn-sm btn-outline-light rounded-pill">View Diet Plan</button>
+                    <a href="/report/hb-analytics" class="btn btn-sm btn-outline-light rounded-pill">
+                        View Diet Plan
+                    </a>
                 </div>
             </div>
         </div>
 
         <div class="row">
-            <div class="col-lg-8">
-                <div class="card stat-card p-4 bg-white mb-4">
-                    <h5 class="fw-bold mb-4">Hemoglobin Trends</h5>
-                    <img src="https://via.placeholder.com/800x300/fdfdfd/d32f2f?text=Hemoglobin+Linear+Regression+Chart" class="img-fluid rounded" alt="Hb Chart">
+            <div class="row justify-content-center">
+                <div class="col-14 col-lg-12"> <!-- wider container -->
+                    <div class="card stat-card p-4 bg-white mb-4">
+                        <h5 class="fw-bold mb-4 text-center">Hemoglobin Trends</h5>
+            
+                        {% if prediction %}
+                            <!-- keep the image original size, centered -->
+                            <div class="d-flex justify-content-center">
+                                <img src="data:image/png;base64,{{ prediction.graph }}" class="rounded" alt="Hb Chart">
+                            </div>
+                        {% else %}
+                            <div class="bg-light rounded-4 d-flex align-items-center justify-content-center border" style="height: 300px; border-style: dashed !important; width: 100%;">
+                                <div class="text-center">
+                                    <i class="bi bi-graph-up text-danger display-1 opacity-25"></i>
+                                    <p class="text-muted mt-2">
+                                        Trend Graph Placeholder<br>
+                                        <small>(Linear Regression Plot will render here)</small>
+                                    </p>
+                                </div>
+                            </div>
+                        {% endif %}
+            
+                    </div>
                 </div>
             </div>
-            <div class="col-lg-4">
+            <!-- <div class="col-lg-4">
                 <div class="card stat-card p-4 bg-white">
                     <h5 class="fw-bold mb-3">Recent Reports</h5>
                     <div class="list-group list-group-flush">
@@ -116,8 +160,8 @@
                             <span class="badge bg-light text-dark">13.3 Hb</span>
                         </div>
                     </div>
-                </div>
-            </div>
+                </div> 
+            </div> -->
         </div>
     </main>
 
