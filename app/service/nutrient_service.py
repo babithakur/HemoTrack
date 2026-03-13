@@ -21,8 +21,7 @@ class NutrientService:
             {"deficiency": d["deficiency"], "plan": NutrientDeficiencyUtil.get_diet_suggestions(d["deficiency"])}
             for d in top_results
         ]
-
-        print(diet_plan)
+        health_tip = NutrientDeficiencyUtil.get_health_tips()
 
         # Aggregate similarities by unique deficiency
         df_sims = pd.DataFrame({
@@ -48,13 +47,10 @@ class NutrientService:
                 text="Similarity Scores with Known Deficiency Profiles",
                 x=0.5,
                 xanchor='center',
-                y=1.0,            # top of the paper (avoid overlapping toolbar)
-                yanchor='top',     # align top of title to this y
-                font=dict(size=16) # optional: adjust font size
             ),
             height=440,
-            margin=dict(l=80, r=20, t=50, b=50),  # increase top margin
-            yaxis=dict(autorange="reversed"),       # Highest similarity on top
+            margin=dict(l=80, r=20, t=90, b=50),
+            yaxis=dict(autorange="reversed"),
             template="plotly_white"
         )
 
@@ -65,5 +61,6 @@ class NutrientService:
             "symptoms": symptoms,
             "top_deficiencies": top_results,
             "diet_plan": diet_plan,
+            "health_tip": health_tip,
             "graph_html": graph_html
         }

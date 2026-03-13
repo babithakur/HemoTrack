@@ -62,5 +62,6 @@ def logout():
     flash("You have been logged out.", "success")
     return redirect(url_for("user.index"))
 
-
-
+@user_bp.route("/settings")
+def settings():
+    return render_template("settings.html")

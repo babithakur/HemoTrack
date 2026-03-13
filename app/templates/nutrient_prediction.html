@@ -52,17 +52,14 @@
                     <h6 class="fw-bold text-uppercase x-small opacity-50 mb-3">Health Fact</h6>
                     <div class="d-flex align-items-start">
                         <i class="bi bi-lightbulb text-warning fs-3 me-3"></i>
-                        <p class="small mb-0 opacity-75">
-                            Vitamin C significantly increases the absorption of non-heme iron (found in plants). 
-                            Always pair your <strong>Spinach</strong> with <strong>Lemon</strong> or Citrus for maximum Hb recovery.
-                        </p>
+                        <p class="small mb-0 opacity-75">{{ result.health_tip }}</p>
                     </div>
                 </div>
             </div>
     
             <!-- Right Column: Results -->
             <div class="col-lg-5 d-flex flex-column">
-                <div class="card border-0 shadow-sm p-4 mb-4" style="border-radius: 20px; flex-grow:1; overflow-y: auto; max-height: 85vh;">
+                <div class="card border-0 shadow-sm p-4 mb-4" style="border-radius: 20px; flex-grow:1; overflow-y: auto; max-height: 108vh;">
                     <h6 class="fw-bold text-muted text-uppercase small mb-4">AI Analysis Result</h6>
             
                     {% if result %}

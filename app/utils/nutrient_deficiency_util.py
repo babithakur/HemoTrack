@@ -1,8 +1,10 @@
-import pickle
 import os
+import pickle
+import random
 from sklearn.metrics.pairwise import cosine_similarity
 import pandas as pd
 from .diet_suggestions import DIET_SUGGESTIONS
+from .health_tips import HEALTH_TIPS
 
 class NutrientDeficiencyUtil:
 
@@ -82,3 +84,8 @@ class NutrientDeficiencyUtil:
     @staticmethod
     def get_diet_suggestions(deficiency_name):
         return DIET_SUGGESTIONS.get(deficiency_name, [])
+    
+    @staticmethod
+    def get_health_tips():
+        random_number = random.randint(0, len(HEALTH_TIPS))
+        return HEALTH_TIPS[random_number]
