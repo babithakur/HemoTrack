@@ -4,7 +4,8 @@ from sklearn.linear_model import LinearRegression
 import numpy as np
 import io
 import base64
-
+import plotly.graph_objects as go
+import plotly.io as pio
 
 class HbPredictionUtil:
 
@@ -21,6 +22,7 @@ class HbPredictionUtil:
 
         df = pd.DataFrame(data)
         df["Date"] = pd.to_datetime(df["Date"])
+        df = df.sort_values("Date")
 
         df["Days"] = (df["Date"] - df["Date"].min()).dt.days
 
@@ -43,32 +45,92 @@ class HbPredictionUtil:
         symptoms = HbPredictionUtil.get_symptoms(anemia_type)
         diet_suggestions = HbPredictionUtil.get_diet_suggestions(anemia_type)
 
-        # ---- Plot graph ----
-        plt.figure()
+        # ---- Create future prediction date ----
+        future_date = df["Date"].min() + pd.Timedelta(days=future_days)
 
-        # observed data
-        plt.scatter(df["Days"], y, color="blue", label="Observed Hb")
+        # Trend prediction values
+        df["Trend"] = model.predict(X)
 
-        # trend line
-        plt.plot(df["Days"], model.predict(X), color="red", label="Trend Line")
+        fig = go.Figure()
 
-        # predicted point
-        plt.scatter(future_days, predicted_hb, color="green", s=120, label="Predicted Hb")
+        # Observed Hb values
+        fig.add_trace(go.Scatter(
+            x=df["Date"],
+            y=df["Hb"],
+            mode="markers+lines",
+            name="Observed Hb",
+            line=dict(color="#1f77b4", width=2),
+            marker=dict(size=9)
+        ))
 
-        # anemia threshold
-        plt.axhline(y=12, color="orange", linestyle="--", label="Anemia Threshold")
+        # Regression trend line
+        fig.add_trace(go.Scatter(
+            x=df["Date"],
+            y=df["Trend"],
+            mode="lines",
+            name="Trend",
+            line=dict(color="red", width=3, dash="dash")
+        ))
 
-        plt.xlabel("Days since first test")
-        plt.ylabel("Hemoglobin (gm/dl)")
-        plt.title("Hemoglobin Trend Prediction")
-        plt.legend()
+        # Predicted future point
+        fig.add_trace(go.Scatter(
+            x=[future_date],
+            y=[predicted_hb],
+            mode="markers",
+            name="Predicted Hb",
+            marker=dict(
+                size=16,
+                color="green",
+                symbol="star"
+            )
+        ))
 
-        img = io.BytesIO()
-        plt.savefig(img, format="png", bbox_inches="tight")
-        plt.close()
+        # Line connecting last point to prediction
+        fig.add_trace(go.Scatter(
+            x=[df["Date"].iloc[-1], future_date],
+            y=[df["Hb"].iloc[-1], predicted_hb],
+            mode="lines",
+            name="Prediction Path",
+            line=dict(color="green", dash="dot")
+        ))
 
-        img.seek(0)
-        graph_url = base64.b64encode(img.getvalue()).decode()
+        # Normal Hb range shading
+        fig.add_shape(
+            type="rect",
+            x0=df["Date"].min(),
+            x1=future_date,
+            y0=12,
+            y1=16,
+            fillcolor="rgba(0,200,0,0.08)",
+            line=dict(width=0),
+            layer="below"
+        )
+
+        # Anemia threshold line
+        fig.add_hline(
+            y=12,
+            line_dash="dash",
+            line_color="orange",
+            annotation_text="Anemia Threshold",
+            annotation_position="top left"
+        )
+
+        fig.update_layout(
+            title="Hemoglobin Trend & Prediction",
+            xaxis_title="Report Date",
+            yaxis_title="Hemoglobin (g/dL)",
+            template="plotly_white",
+            hovermode="x unified",
+            height=520,
+            legend=dict(
+                orientation="h",
+                y=1.02,
+                x=1,
+                xanchor="right"
+            ),
+        )
+
+        graph_html = pio.to_html(fig, full_html=False)
 
         risk = "Yes" if predicted_hb < 12 else "No"
 
@@ -78,7 +140,7 @@ class HbPredictionUtil:
             "anemia_type": anemia_type,
             "symptoms": symptoms,
             "diet_suggestions": diet_suggestions,
-            "graph": graph_url,
+            "graph": graph_html,
             "slope_per_week": slope_per_week
         }
     

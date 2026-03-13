@@ -28,9 +28,9 @@
 
                     {% if result and result.graph %}
                     
-                        <img src="data:image/png;base64,{{ result.graph }}"
-                            class="img-fluid"
-                            style="max-height:500px; width: 600px;">
+                    <div style="width:100%;">
+                        {{ result.graph | safe }}
+                    </div>
 
                     {% else %}
 

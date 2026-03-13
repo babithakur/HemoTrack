@@ -83,3 +83,4 @@ def hb_analytics():
         return render_template("hb_analytics.html", result=result)
     except Exception as e:
         return {"error": str(e)}, 400
+

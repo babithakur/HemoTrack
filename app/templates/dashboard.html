@@ -24,7 +24,7 @@
             <li><a href="/report/hb-analytics" class="nav-link"><i class="bi bi-graph-up-arrow"></i> Hb Analytics</a></li>
             <li><a href="/report/my-reports" class="nav-link"><i class="bi bi-journal-medical"></i> My Reports</a></li>
             <!-- <li><a href="#" class="nav-link"><i class="bi bi-shield-check"></i> Risk Assessment</a></li> -->
-            <li><a href="#" class="nav-link"><i class="bi bi-egg-fried"></i> Diet & Symptoms</a></li>
+            <li><a href="/nutrient/nutrient-prediction" class="nav-link"><i class="bi bi-egg-fried"></i> Diet & Symptoms</a></li>
             <li><a href="#" class="nav-link"><i class="bi bi-gear-fill"></i> Settings</a></li>
         </ul>
 
@@ -124,7 +124,9 @@
                         {% if prediction %}
                             <!-- keep the image original size, centered -->
                             <div class="d-flex justify-content-center">
-                                <img src="data:image/png;base64,{{ prediction.graph }}" class="rounded" alt="Hb Chart">
+                                <div style="width:100%;">
+                                    {{ prediction.graph | safe }}
+                                </div>
                             </div>
                         {% else %}
                             <div class="bg-light rounded-4 d-flex align-items-center justify-content-center border" style="height: 300px; border-style: dashed !important; width: 100%;">
