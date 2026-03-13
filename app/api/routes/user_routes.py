@@ -62,6 +62,31 @@ def logout():
     flash("You have been logged out.", "success")
     return redirect(url_for("user.index"))
 
-@user_bp.route("/settings")
+@user_bp.route("/settings", methods=["GET", "POST"])
 def settings():
-    return render_template("settings.html")
+    user_id = session.get("user_id")
+
+    if request.method == "GET":
+        user = UserService.get_user_by_id(user_id)
+        return render_template("settings.html", user=user)
+
+    if request.method == "POST":
+        data = request.form
+
+        try:
+            user = UserService.update_settings(
+                user_id=user_id,
+                name=data.get("name"),
+                current_password=data.get("current_password"),
+                new_password=data.get("new_password")
+            )
+            #update session name if changed
+            if data.get("name"):
+                session["name"] = user.name
+
+            flash("Settings updated successfully.", "success")
+            return redirect(url_for("user.dashboard"))
+
+        except ValueError as e:
+            flash(str(e), "error")
+            return redirect(url_for("user.settings"))

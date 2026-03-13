@@ -9,6 +9,16 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
 </head>
 <body>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+        <div class="alert alert-{{ 'success' if category=='success' else 'danger' }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
+    {% endif %}
+    {% endwith %}
     <div class="container-fluid py-4">
         <div class="mb-5 px-3 text-center">
             <h2 class="fw-bold mb-1">Account <span class="text-danger">Settings</span></h2>
@@ -19,7 +29,7 @@
             <div class="col-lg-6 col-md-8">
                 <div class="card border-0 shadow-sm p-4 p-md-5" style="border-radius: 24px;">
                     
-                    <form action="/update-settings" method="POST">
+                    <form action="/settings" method="POST">
                         <div class="d-flex align-items-center mb-4">
                             <div class="bg-danger-subtle text-danger p-3 rounded-circle me-3">
                                 <i class="bi bi-person-gear fs-4"></i>
@@ -34,7 +44,7 @@
                                     <i class="bi bi-person text-muted"></i>
                                 </span>
                                 <input type="text" name="name" class="form-control bg-light border-0 rounded-end-pill py-2" 
-                                       value="{{ name }}" placeholder="Enter your name" required>
+                                       value="{{ name }}" placeholder="Enter your name">
                             </div>
                         </div>
     
@@ -49,8 +59,8 @@
     
                         <div class="mb-3">
                             <label class="form-label small fw-bold text-uppercase text-muted">Current Password</label>
-                            <input type="password" name="old_password" class="form-control bg-light border-0 rounded-pill py-2 px-4" 
-                                   placeholder="••••••••" required>
+                            <input type="password" name="current_password" class="form-control bg-light border-0 rounded-pill py-2 px-4" 
+                                   placeholder="••••••••">
                         </div>
     
                         <div class="mb-4">
@@ -106,5 +116,11 @@
         }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // auto-dismiss after 4 seconds
+        setTimeout(() => {
+          document.querySelectorAll('.alert').forEach(el => el.remove());
+        }, 5000);
+    </script>
 </body>
 </html>

@@ -72,3 +72,33 @@ class UserService:
         else:
             session.permanent = False
         return user
+    
+    @staticmethod
+    def get_user_by_id(user_id):
+        return UserRepo.get_user_by_id(user_id)
+
+    @staticmethod
+    def update_settings(user_id, name=None, current_password=None, new_password=None):
+        user = UserRepo.get_user_by_id(user_id)
+
+        if not user:
+            raise ValueError("User not found")
+
+        if name and name.strip():
+            user.name = name.strip()
+
+        if new_password:
+            if not current_password:
+                raise ValueError("Current password is required")
+            if not check_password_hash(user.password, current_password):
+                raise ValueError("Current password is incorrect")
+            pw_regex = r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$"
+            if not re.match(pw_regex, new_password):
+                raise ValueError(
+                    "Password must be at least 8 characters long, "
+                    "include uppercase, lowercase, number, and special character"
+                )
+            hashed_pw = generate_password_hash(new_password)
+            user.password = hashed_pw
+
+        return UserRepo.update_user(user)
