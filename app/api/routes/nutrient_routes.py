@@ -12,7 +12,6 @@ def nutrient_prediction():
         symptoms = request.form.get("symptoms")
         try:
             result = NutrientService.predict_nutrient_deficiency(symptoms)
-            print("Result:", result)
         except Exception as e:
             result = {"error": str(e)}
     return render_template("nutrient_prediction.html", result=result, user_input=symptoms)

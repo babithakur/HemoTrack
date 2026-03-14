@@ -58,12 +58,14 @@ def save_report():
 
 @report_bp.route("/my-reports", methods=["GET"])
 def my_reports():
-    hematology_reports, other_reports = ReportService.get_user_reports()
+    sort_order = request.args.get("sort", "newest")
+    hematology_reports, other_reports = ReportService.get_user_reports(sort_order)
 
     return render_template(
         "my_reports.html",
         hematology_reports=hematology_reports,
-        other_reports=other_reports
+        other_reports=other_reports,
+        sort=sort_order
     )
 
 @report_bp.route("/delete/<int:report_id>", methods=["POST", "GET"])

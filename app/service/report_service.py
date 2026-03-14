@@ -135,13 +135,13 @@ class ReportService:
         return report
     
     @staticmethod
-    def get_user_reports():
+    def get_user_reports(sort_order="newest"):
         user_id = session.get("user_id")
 
         if not user_id:
             return [], []
 
-        reports = ReportRepo.get_reports_by_user(user_id)
+        reports = ReportRepo.get_reports_by_user(user_id, sort_order)
 
         hematology_reports = []
         other_reports = []

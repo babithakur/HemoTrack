@@ -87,5 +87,5 @@ class NutrientDeficiencyUtil:
     
     @staticmethod
     def get_health_tips():
-        random_number = random.randint(0, len(HEALTH_TIPS))
+        random_number = random.randint(0, len(HEALTH_TIPS)-1)
         return HEALTH_TIPS[random_number]

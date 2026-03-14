@@ -28,15 +28,14 @@ class ReportRepo:
         return embedding
     
     @staticmethod
-    def get_reports_by_user(user_id):
-        reports = (
-            Report.query
-            .filter_by(user_id=user_id)
-            .order_by(Report.created_at.desc())
-            .all()
-        )
+    def get_reports_by_user(user_id, sort_order="newest"):
+        query = Report.query.filter_by(user_id=user_id)
+        if sort_order == "oldest":
+            query = query.order_by(Report.created_at.asc())
+        else:
+            query = query.order_by(Report.created_at.desc())
 
-        return reports
+        return query.all()
     
     @staticmethod
     def get_report_by_id(report_id):
