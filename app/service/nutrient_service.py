@@ -21,7 +21,7 @@ class NutrientService:
             {"deficiency": d["deficiency"], "plan": NutrientDeficiencyUtil.get_diet_suggestions(d["deficiency"])}
             for d in top_results
         ]
-        health_tip = NutrientDeficiencyUtil.get_health_tips()
+        health_tip = NutrientService.fetch_health_tips()
 
         # Aggregate similarities by unique deficiency
         df_sims = pd.DataFrame({
@@ -64,3 +64,7 @@ class NutrientService:
             "health_tip": health_tip,
             "graph_html": graph_html
         }
+    
+    @staticmethod
+    def fetch_health_tips():
+        return NutrientDeficiencyUtil.get_health_tips()

@@ -6,7 +6,7 @@ nutrient_bp = Blueprint("nutrient_bp", __name__)
 
 @nutrient_bp.route("/nutrient-prediction", methods=["GET", "POST"])
 def nutrient_prediction():
-    result = None
+    result = {"health_tip": NutrientService.fetch_health_tips()}
     symptoms = ""
     if request.method == "POST":
         symptoms = request.form.get("symptoms")
