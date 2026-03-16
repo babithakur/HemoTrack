@@ -57,82 +57,136 @@
                 </div>
             </div>
     
-            <!-- Right Column: Results -->
+            <!-- Right Column -->
             <div class="col-lg-5 d-flex flex-column">
-                <div class="card border-0 shadow-sm p-4 mb-4" style="border-radius: 20px; flex-grow:1; overflow-y: auto; max-height: 108vh;">
-                    <h6 class="fw-bold text-muted text-uppercase small mb-4">AI Analysis Result</h6>
-            
-                    {% if result %}
-                        <!-- Primary AI Prediction -->
-                        <div class="card border-0 shadow-sm mb-4 p-3 text-center"
-                        style="background:#f8fafc;border-radius:16px;">
+                <div class="card border-0 shadow-sm p-4 mb-4" 
+                    style="border-radius: 20px; flex-grow:1; overflow-y: auto; max-height:108vh;">
 
+                    {% if result.graph_html %}
+                    
+                    <!-- Title appears ONLY after prediction -->
+                    <h6 class="fw-bold text-muted text-uppercase small mb-4">AI Analysis Result</h6>
+
+                    <!-- Primary AI Prediction -->
+                    <div class="card border-0 shadow-sm mb-4 p-3 text-center"
+                        style="background:#f8fafc;border-radius:16px;">
                         <h6 class="text-muted small mb-2">Primary Predicted Deficiency</h6>
 
                         <h4 class="fw-bold text-danger mb-1">
-                        {{ result.primary_deficiency }}
+                            {{ result.primary_deficiency }}
                         </h4>
 
                         <small class="text-muted">
-                        Based on your reported symptoms
+                            Based on your reported symptoms
                         </small>
+                    </div>
+
+                    <!-- Top Predictions -->
+                    <h6 class="fw-bold text-muted small mb-3">Top Predicted Deficiencies</h6>
+
+                    <ul class="list-group mb-4">
+                        {% for item in result.top_deficiencies %}
+                        <li class="list-group-item">
+                            <div class="d-flex justify-content-between">
+                                <span>{{ item.deficiency }}</span>
+                                <span class="fw-bold">{{ item.confidence }}%</span>
+                            </div>
+
+                            <div class="progress mt-2" style="height:6px;">
+                                <div class="progress-bar bg-danger"
+                                    role="progressbar"
+                                    style="width: {{ item.confidence | float | round(1) }}%">
+                                </div>
+                            </div>
+                        </li>
+                        {% endfor %}
+                    </ul>
+
+                    <!-- Graph -->
+                    <h6 class="fw-bold text-muted small mb-2">Prediction Confidence Distribution</h6>
+                    <div>
+                        {{ result.graph_html | safe }}
+                    </div>
+
+                    <!-- Diet Plan -->
+                    <div class="mb-4 mt-4">
+                        <label class="small text-muted d-block mb-2">Recommended Diet Plan</label>
+
+                        <div class="list-group list-group-flush border-top border-bottom">
+
+                            {% for deficiency_item in result.diet_plan %}
+                                <div class="mb-2 mt-2">
+                                    <strong>{{ deficiency_item.deficiency }}</strong>
+                                </div>
+
+                                {% if deficiency_item.plan %}
+                                    {% for food_item in deficiency_item.plan %}
+                                    <div class="list-group-item bg-transparent px-0 d-flex align-items-center">
+                                        <span class="badge bg-success-subtle text-success rounded-pill me-2">
+                                            {{ food_item.type }}
+                                        </span>
+                                        <span>{{ food_item.food }}</span>
+                                    </div>
+                                    {% endfor %}
+                                {% else %}
+                                    <div class="text-muted small px-0 mb-2">
+                                        No diet suggestions available.
+                                    </div>
+                                {% endif %}
+
+                            {% endfor %}
 
                         </div>
-                        <!-- Top Predicted Deficiencies -->
-                        <h6 class="fw-bold text-muted small mb-3">Top Predicted Deficiencies</h6>
-                        <ul class="list-group mb-4">
-                            {% for item in result.top_deficiencies %}
-                            <li class="list-group-item">
-                                <div class="d-flex justify-content-between">
-                                    <span>{{ item.deficiency }}</span>
-                                    <span class="fw-bold">{{ item.confidence }}%</span>
-                                </div>
-                            
-                                <div class="progress mt-2" style="height:6px;">
-                                    <div class="progress-bar bg-danger"
-                                         role="progressbar"
-                                         style="width: {{ item.confidence | float | round(1) }}%">
-                                    </div>
-                                </div>
-                            </li>
-                            {% endfor %}
-                        </ul>
-            
-                        <!-- Similarity Graph -->
-                        <h6 class="fw-bold text-muted small mb-2">Prediction Confidence Distribution</h6>
-                        <div>
-                            {{ result.graph_html | safe }}
-                        </div>
-            
-                        <!-- Diet Plan -->
-                        <div class="mb-4 mt-4">
-                            <label class="small text-muted d-block mb-2">Recommended Diet Plan</label>
-                            <div class="list-group list-group-flush border-top border-bottom">
-                                {% for deficiency_item in result.diet_plan %}
-                                    <div class="mb-2 mt-2">
-                                        <strong>{{ deficiency_item.deficiency }}</strong>
-                                    </div>
-                                    {% if deficiency_item.plan %}
-                                        {% for food_item in deficiency_item.plan %}
-                                            <div class="list-group-item bg-transparent px-0 d-flex align-items-center">
-                                                <span class="badge bg-success-subtle text-success rounded-pill me-2">{{ food_item.type }}</span>
-                                                <span>{{ food_item.food }}</span>
-                                            </div>
-                                        {% endfor %}
-                                    {% else %}
-                                        <div class="text-muted small px-0 mb-2">No diet suggestions available.</div>
-                                    {% endif %}
-                                {% endfor %}
-                            </div>
-                        </div>
+                    </div>
+
                     {% else %}
-                        <!-- Placeholder -->
-                        <div class="text-center py-4">
-                            <i class="bi bi-clipboard-pulse text-light display-1 mb-3"></i>
-                            <p class="text-muted small">
-                                Enter your symptoms on the left to see the AI prediction.
-                            </p>
+
+                    <!-- Default UI BEFORE prediction -->
+                    <div class="text-center py-5">
+
+                        <i class="bi bi-cpu text-danger display-3 mb-3"></i>
+
+                        <h5 class="fw-bold mb-2">AI Nutrition Analyzer</h5>
+
+                        <p class="text-muted small mb-4">
+                            Our AI will analyze your symptoms and predict potential
+                            nutrient deficiencies with personalized diet suggestions.
+                        </p>
+
+                        <div class="text-start small text-muted">
+
+                            <div class="d-flex mb-2">
+                                <i class="bi bi-check-circle text-success me-2"></i>
+                                Symptom pattern analysis
+                            </div>
+
+                            <div class="d-flex mb-2">
+                                <i class="bi bi-check-circle text-success me-2"></i>
+                                Nutrient deficiency prediction
+                            </div>
+
+                            <div class="d-flex mb-2">
+                                <i class="bi bi-check-circle text-success me-2"></i>
+                                Personalized diet suggestions
+                            </div>
+
+                            <div class="d-flex">
+                                <i class="bi bi-check-circle text-success me-2"></i>
+                                Confidence score visualization
+                            </div>
+
                         </div>
+
+                        <hr class="my-4">
+
+                        <small class="text-muted">
+                            Enter your symptoms on the left and click
+                            <strong>"Predict Nutrient Deficiency"</strong>
+                            to see your results.
+                        </small>
+
+                    </div>
+
                     {% endif %}
                 </div>
             </div>
