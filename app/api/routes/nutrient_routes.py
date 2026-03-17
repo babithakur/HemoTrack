@@ -1,10 +1,12 @@
 from flask import Blueprint, request, render_template
 from app.service.nutrient_service import NutrientService
+from app.utils.auth import login_required
 
 nutrient_bp = Blueprint("nutrient_bp", __name__)
 
 
 @nutrient_bp.route("/nutrient-prediction", methods=["GET", "POST"])
+@login_required
 def nutrient_prediction():
     result = {"health_tip": NutrientService.fetch_health_tips()}
     symptoms = ""

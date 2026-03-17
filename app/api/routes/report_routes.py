@@ -1,9 +1,11 @@
 from flask import Blueprint, render_template, request, flash, redirect, url_for, session
 from app.service.report_service import ReportService
+from app.utils.auth import login_required
 
 report_bp = Blueprint("report", __name__)
 
 @report_bp.route("/blur_analysis", methods=["POST"])
+@login_required
 def blur_analysis():
     file = request.files.get("file")
     #filename = request.form.get("filename")
@@ -25,6 +27,7 @@ def blur_analysis():
         return render_template("dashboard.html")
 
 @report_bp.route("/validate", methods=["GET"])
+@login_required
 def validate_report():
     filename = request.args.get("filename")  #reuse filename from blur analysis
 
@@ -43,6 +46,7 @@ def validate_report():
         return render_template("dashboard.html") 
 
 @report_bp.route("/save-report", methods=["POST"])
+@login_required
 def save_report():
     #filename = request.form.get("filename")
     hemoglobin = request.form.get("hb_value")
@@ -57,6 +61,7 @@ def save_report():
         return redirect(url_for("user.dashboard"))
 
 @report_bp.route("/my-reports", methods=["GET"])
+@login_required
 def my_reports():
     sort_order = request.args.get("sort", "newest")
     hematology_reports, other_reports = ReportService.get_user_reports(sort_order)
@@ -69,6 +74,7 @@ def my_reports():
     )
 
 @report_bp.route("/delete/<int:report_id>", methods=["POST", "GET"])
+@login_required
 def delete_report(report_id):
     success = ReportService.delete_report(report_id=report_id)
 
@@ -79,6 +85,7 @@ def delete_report(report_id):
     return redirect(url_for("report.my_reports"))
 
 @report_bp.route("/hb-analytics", methods=["GET"])
+@login_required
 def hb_analytics():
     try:
         result = ReportService.predict_anemia(session["user_id"])
