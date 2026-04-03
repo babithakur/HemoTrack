@@ -1,6 +1,7 @@
 import pandas as pd
 import matplotlib.pyplot as plt
-from sklearn.linear_model import LinearRegression
+##from sklearn.linear_model import LinearRegression
+from .linear_regression import SimpleLinearRegression
 import numpy as np
 import io
 import base64
@@ -29,27 +30,80 @@ class HbPredictionUtil:
         X = df[["Days"]]
         y = df["Hb"]
 
-        model = LinearRegression()
-        model.fit(X, y)
+        ##model = LinearRegression()
+        ##model.fit(X, y)
+
+        model = SimpleLinearRegression()
+        model.fit(X["Days"], y)
         # Linear regression slope (gm/dL per day)
-        slope_per_day = model.coef_[0]
+        ##slope_per_day = model.coef_[0]
+        slope_per_day = model.coef_
 
         # Convert to gm/dL per week
-        slope_per_week = slope_per_day * 7
-        slope_per_week = round(slope_per_week, 2)
+        ##slope_per_week = slope_per_day * 7
+        ##slope_per_week = round(slope_per_week, 2)
+        slope_per_week = round(slope_per_day * 7, 2)
 
         # Predict future Hb
-        future_df = pd.DataFrame([[future_days]], columns=["Days"])
-        predicted_hb = model.predict(future_df)[0]
-        anemia_type = HbPredictionUtil.classify_anemia(predicted_hb)
-        symptoms = HbPredictionUtil.get_symptoms(anemia_type)
-        diet_suggestions = HbPredictionUtil.get_diet_suggestions(anemia_type)
+        ##future_df = pd.DataFrame([[future_days]], columns=["Days"])
+        ##predicted_hb = model.predict(future_df)[0]
+        predicted_hb = model.predict([future_days])[0]
+        ##anemia_type = HbPredictionUtil.classify_anemia(predicted_hb)
+        ##symptoms = HbPredictionUtil.get_symptoms(anemia_type)
+        ##diet_suggestions = HbPredictionUtil.get_diet_suggestions(anemia_type)
 
         # ---- Create future prediction date ----
         future_date = df["Date"].min() + pd.Timedelta(days=future_days)
 
         # Trend prediction values
-        df["Trend"] = model.predict(X)
+        ##df["Trend"] = model.predict(X)
+        df["Trend"] = model.predict(df["Days"])
+
+        # Metrics
+        mse = model.mse(df["Days"], y)
+        r2 = model.r2_score(df["Days"], y)
+        rmse = np.sqrt(mse)
+        print("MSE: ", mse)
+        print("R2: ", r2)
+        print("RMSE: ", rmse)
+
+        # Default prediction (regression)
+        predicted_hb_reg = model.predict([future_days])[0]
+
+        # ---- SMART DECISION LOGIC ----
+
+        confidence = "High"
+        warning = None
+
+        # Rule 1: Too little data
+        if len(df) < 4:
+            predicted_hb = df["Hb"].iloc[-1]  # fallback to latest
+            confidence = "Low"
+            warning = "Very limited data. Prediction based on latest value."
+
+        # Rule 2: Weak trend
+        elif r2 < 0.5:
+            predicted_hb = df["Hb"].iloc[-1]
+            confidence = "Low"
+            warning = "Hb trend is unstable. Prediction may not be reliable."
+
+        # Rule 3: High error
+        elif rmse > 1.5:
+            predicted_hb = (predicted_hb_reg + df["Hb"].iloc[-1]) / 2
+            confidence = "Medium"
+            warning = "Prediction adjusted due to high variability."
+
+        # Rule 4: Good model
+        else:
+            predicted_hb = predicted_hb_reg
+            confidence = "High"
+        
+        anemia_type = HbPredictionUtil.classify_anemia(predicted_hb)
+        symptoms = HbPredictionUtil.get_symptoms(anemia_type)
+        diet_suggestions = HbPredictionUtil.get_diet_suggestions(anemia_type)
+
+        print(confidence)
+        print(warning)
 
         fig = go.Figure()
 
@@ -141,7 +195,12 @@ class HbPredictionUtil:
             "symptoms": symptoms,
             "diet_suggestions": diet_suggestions,
             "graph": graph_html,
-            "slope_per_week": slope_per_week
+            "slope_per_week": slope_per_week,
+            "mse": round(mse, 2),
+            "r2_score": round(r2, 2),
+            "rmse": round(rmse, 2),
+            "confidence": confidence,
+            "warning": warning
         }
     
     @staticmethod
@@ -178,7 +237,7 @@ class HbPredictionUtil:
     @staticmethod
     def get_diet_suggestions(anemia_type):
         diets = {
-            "Normal": ["Maintain a balanced diet rich in iron, vitamins, and protein"],
+            "Normal": ["Maintain a balanced diet rich in essential nutrients"],
             "Mild Anemia": ["Leafy green vegetables (spinach, kale)", "Iron-fortified cereals", "Lean meats", "Legumes"],
             "Moderate Anemia": ["Red meat (beef, liver)", "Eggs", "Beans and lentils", "Vitamin C-rich fruits to aid iron absorption"],
             "Severe/Serious Anemia": ["Iron supplements (as prescribed)", "Red meat and liver", "Eggs", "Green leafy vegetables", "Vitamin C-rich fruits"],

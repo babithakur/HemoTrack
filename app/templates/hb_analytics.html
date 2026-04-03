@@ -63,8 +63,86 @@
         <div class="col-lg-4">
             <div class="card border-0 shadow-sm p-4 mb-4 bg-dark text-white" style="border-radius: 20px;">
                 <small class="text-uppercase fw-bold opacity-50 small mb-2 d-block">30-Day Prediction</small>
-                <h2 class="fw-bold mb-1 text-danger">{{ result.predicted_hb }}<span class="fs-5 text-white opacity-75"> g/dL</span></h2>
+                <h2 class="fw-bold mb-1  
+                {% if result.predicted_hb >= 12 %} 
+                    text-success
+                {% elif result.predicted_hb >= 10 %}
+                    text-warning
+                {% else %}
+                    text-danger
+                {% endif %}
+                ">{{ result.predicted_hb }}<span class="fs-5 text-white opacity-75"> g/dL</span></h2>
                 <p class="small opacity-75 mb-0">Predicted Hb value after 30 days</p>
+            </div>
+            
+            <div class="card border-0 shadow-sm p-4 mb-4" style="border-radius: 20px;">
+                <div class="row g-3 mb-4">
+                    <div class="col-md-4">
+                        <div class="card border-0 shadow-sm p-3 text-center" style="border-radius: 15px;">
+                            <small class="text-muted d-block mb-1" data-bs-toggle="tooltip" title="Mean Squared Error - lower is better">MSE</small>
+                            <h4 class="fw-bold mb-0">{{ result.mse }}</h4>
+                        </div>
+                    </div>
+                    <!-- RMSE -->
+                    <div class="col-md-4">
+                        <div class="card border-0 shadow-sm p-3 text-center" style="border-radius: 15px;">
+                            <small class="text-muted d-block mb-1">RMSE</small>
+                            <h4 class="fw-bold mb-0">{{ result.rmse }}</h4>
+                        </div>
+                    </div>
+
+                    <!-- R² -->
+                    <div class="col-md-4">
+                        <div class="card border-0 shadow-sm p-3 text-center" style="border-radius: 15px;">
+                            <small class="text-muted d-block mb-1">R² Score</small>
+                            <h4 class="fw-bold mb-0">{{ result.r2_score }}</h4>
+                        </div>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span class="text-muted">Prediction Confidence:</span>
+                    <span class="badge 
+                        {% if result.confidence == 'High' %}bg-success
+                        {% elif result.confidence == 'Medium' %}bg-warning text-dark
+                        {% else %}bg-danger
+                        {% endif %}
+                        rounded-pill px-3">
+                        {{ result.confidence }}
+                    </span>
+                </div>
+
+                <div class="mb-3">
+                    <small class="text-muted">Confidence Level</small>
+                    <div class="progress" style="height: 8px; border-radius: 10px;">
+                        <div class="progress-bar 
+                            {% if result.confidence == 'High' %}bg-success
+                            {% elif result.confidence == 'Medium' %}bg-warning
+                            {% else %}bg-danger
+                            {% endif %}"
+                            role="progressbar"
+                            style="width: 
+                                {% if result.confidence == 'High' %}90%
+                                {% elif result.confidence == 'Medium' %}60%
+                                {% else %}30%
+                                {% endif %};">
+                        </div>
+                    </div>
+                </div>
+
+                <p class="small mt-2 
+                    {% if result.confidence == 'High' %}text-success
+                    {% elif result.confidence == 'Medium' %}text-warning
+                    {% else %}text-danger
+                    {% endif %}">
+                    
+                    {% if result.confidence == 'High' %}
+                        Prediction is reliable based on consistent Hb trend.
+                    {% elif result.confidence == 'Medium' %}
+                        Prediction has moderate uncertainty due to variability.
+                    {% else %}
+                        Prediction is not reliable due to limited or unstable data.
+                    {% endif %}
+                </p>
             </div>
 
             <div class="card border-0 shadow-sm p-4 mb-4" style="border-radius: 20px;">
@@ -72,7 +150,9 @@
                 
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <span class="text-muted">Anemia Risk:</span>
-                    <span class="badge bg-danger rounded-pill px-3">{{ result.risk }}</span>
+                    <span class="badge {% if result.risk == 'No' %}bg-success{% else %}bg-danger{% endif %} rounded-pill px-3">
+                        {{ result.risk }}
+                    </span>
                 </div>
                 
                 <div class="d-flex justify-content-between align-items-center mb-3">
