@@ -47,33 +47,44 @@ class HbPredictionUtil:
         # Predict future Hb
         ##future_df = pd.DataFrame([[future_days]], columns=["Days"])
         ##predicted_hb = model.predict(future_df)[0]
-        predicted_hb = model.predict([future_days])[0]
+        ###predicted_hb = model.predict([future_days])[0]
         ##anemia_type = HbPredictionUtil.classify_anemia(predicted_hb)
         ##symptoms = HbPredictionUtil.get_symptoms(anemia_type)
         ##diet_suggestions = HbPredictionUtil.get_diet_suggestions(anemia_type)
 
+        last_day = df["Days"].max()
+        future_day_value = last_day + future_days
+
+        predicted_hb_reg = model.predict([future_day_value])[0]
+        predicted_hb = predicted_hb_reg
+        predicted_hb_ma = df["Hb"].tail(3).mean()
+
         # ---- Create future prediction date ----
-        future_date = df["Date"].min() + pd.Timedelta(days=future_days)
+        ###future_date = df["Date"].min() + pd.Timedelta(days=future_days)
+        last_date = df["Date"].max()
+        future_date = last_date + pd.Timedelta(days=future_days)
 
         # Trend prediction values
         ##df["Trend"] = model.predict(X)
-        df["Trend"] = model.predict(df["Days"])
+        ###df["Trend"] = model.predict(df["Days"])
+        df["Trend"] = model.predict(df["Days"].values)
 
         # Metrics
         mse = model.mse(df["Days"], y)
         r2 = model.r2_score(df["Days"], y)
         rmse = np.sqrt(mse)
-        print("MSE: ", mse)
-        print("R2: ", r2)
-        print("RMSE: ", rmse)
+
+        baseline_pred = df["Hb"].iloc[-1]
+        baseline_mse = np.mean((y - baseline_pred) ** 2)
 
         # Default prediction (regression)
-        predicted_hb_reg = model.predict([future_days])[0]
+        ###predicted_hb_reg = model.predict([future_days])[0]
 
         # ---- SMART DECISION LOGIC ----
 
         confidence = "High"
         warning = None
+
 
         # Rule 1: Too little data
         if len(df) < 4:
@@ -86,10 +97,21 @@ class HbPredictionUtil:
             predicted_hb = df["Hb"].iloc[-1]
             confidence = "Low"
             warning = "Hb trend is unstable. Prediction may not be reliable."
-
-        # Rule 3: High error
-        elif rmse > 1.5:
+        
+        # Rule 4: Large jump (VERY important for your case)
+        elif abs(predicted_hb_reg - df["Hb"].iloc[-1]) > 1.0:
             predicted_hb = (predicted_hb_reg + df["Hb"].iloc[-1]) / 2
+            confidence = "Medium"
+            warning = "Large jump detected. Prediction smoothed."
+        
+        elif mse > baseline_mse:
+            predicted_hb = baseline_pred
+            confidence = "Low"
+            warning = "Model performs worse than baseline (last value)."
+        
+        # Rule 3: High error
+        elif rmse > 1.0:
+            predicted_hb = (predicted_hb_reg + predicted_hb_ma) / 2
             confidence = "Medium"
             warning = "Prediction adjusted due to high variability."
 
@@ -98,12 +120,21 @@ class HbPredictionUtil:
             predicted_hb = predicted_hb_reg
             confidence = "High"
         
+        if rmse > 1.0:
+            max_change = 0.8
+        else:
+            max_change = 1.2
+
+        last_hb = df["Hb"].iloc[-1]
+        delta = predicted_hb - last_hb
+
+        if abs(delta) > max_change:
+            predicted_hb = last_hb + np.sign(delta) * max_change
+            warning = (warning + " " if warning else "") + "Clamped to realistic biological change."
+
         anemia_type = HbPredictionUtil.classify_anemia(predicted_hb)
         symptoms = HbPredictionUtil.get_symptoms(anemia_type)
         diet_suggestions = HbPredictionUtil.get_diet_suggestions(anemia_type)
-
-        print(confidence)
-        print(warning)
 
         fig = go.Figure()
 
