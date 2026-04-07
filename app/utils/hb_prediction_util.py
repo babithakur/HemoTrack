@@ -1,6 +1,5 @@
 import pandas as pd
 import matplotlib.pyplot as plt
-##from sklearn.linear_model import LinearRegression
 from .linear_regression import SimpleLinearRegression
 import numpy as np
 import io
@@ -30,27 +29,10 @@ class HbPredictionUtil:
         X = df[["Days"]]
         y = df["Hb"]
 
-        ##model = LinearRegression()
-        ##model.fit(X, y)
-
         model = SimpleLinearRegression()
         model.fit(X["Days"], y)
-        # Linear regression slope (gm/dL per day)
-        ##slope_per_day = model.coef_[0]
         slope_per_day = model.coef_
-
-        # Convert to gm/dL per week
-        ##slope_per_week = slope_per_day * 7
-        ##slope_per_week = round(slope_per_week, 2)
         slope_per_week = round(slope_per_day * 7, 2)
-
-        # Predict future Hb
-        ##future_df = pd.DataFrame([[future_days]], columns=["Days"])
-        ##predicted_hb = model.predict(future_df)[0]
-        ###predicted_hb = model.predict([future_days])[0]
-        ##anemia_type = HbPredictionUtil.classify_anemia(predicted_hb)
-        ##symptoms = HbPredictionUtil.get_symptoms(anemia_type)
-        ##diet_suggestions = HbPredictionUtil.get_diet_suggestions(anemia_type)
 
         last_day = df["Days"].max()
         future_day_value = last_day + future_days
@@ -59,17 +41,11 @@ class HbPredictionUtil:
         predicted_hb = predicted_hb_reg
         predicted_hb_ma = df["Hb"].tail(3).mean()
 
-        # ---- Create future prediction date ----
-        ###future_date = df["Date"].min() + pd.Timedelta(days=future_days)
         last_date = df["Date"].max()
         future_date = last_date + pd.Timedelta(days=future_days)
-
-        # Trend prediction values
-        ##df["Trend"] = model.predict(X)
-        ###df["Trend"] = model.predict(df["Days"])
         df["Trend"] = model.predict(df["Days"].values)
 
-        # Metrics
+        #metrics
         mse = model.mse(df["Days"], y)
         r2 = model.r2_score(df["Days"], y)
         rmse = np.sqrt(mse)
@@ -77,45 +53,41 @@ class HbPredictionUtil:
         baseline_pred = df["Hb"].iloc[-1]
         baseline_mse = np.mean((y - baseline_pred) ** 2)
 
-        # Default prediction (regression)
-        ###predicted_hb_reg = model.predict([future_days])[0]
-
-        # ---- SMART DECISION LOGIC ----
-
+        #SMART DECISION LOGIC
         confidence = "High"
         warning = None
 
-
-        # Rule 1: Too little data
+        #rule 1: too little data
         if len(df) < 4:
             predicted_hb = df["Hb"].iloc[-1]  # fallback to latest
             confidence = "Low"
             warning = "Very limited data. Prediction based on latest value."
 
-        # Rule 2: Weak trend
+        #rule 2: weak trend
         elif r2 < 0.5:
             predicted_hb = df["Hb"].iloc[-1]
             confidence = "Low"
             warning = "Hb trend is unstable. Prediction may not be reliable."
         
-        # Rule 4: Large jump (VERY important for your case)
+        #rule 3: large jump 
         elif abs(predicted_hb_reg - df["Hb"].iloc[-1]) > 1.0:
             predicted_hb = (predicted_hb_reg + df["Hb"].iloc[-1]) / 2
             confidence = "Medium"
             warning = "Large jump detected. Prediction smoothed."
         
+        #rule 4: baseline
         elif mse > baseline_mse:
             predicted_hb = baseline_pred
             confidence = "Low"
             warning = "Model performs worse than baseline (last value)."
         
-        # Rule 3: High error
+        #rule 5: high error
         elif rmse > 1.0:
             predicted_hb = (predicted_hb_reg + predicted_hb_ma) / 2
             confidence = "Medium"
             warning = "Prediction adjusted due to high variability."
 
-        # Rule 4: Good model
+        #rule 6: good model
         else:
             predicted_hb = predicted_hb_reg
             confidence = "High"
@@ -138,7 +110,7 @@ class HbPredictionUtil:
 
         fig = go.Figure()
 
-        # Observed Hb values
+        #observed Hb values
         fig.add_trace(go.Scatter(
             x=df["Date"],
             y=df["Hb"],
@@ -148,7 +120,7 @@ class HbPredictionUtil:
             marker=dict(size=9)
         ))
 
-        # Regression trend line
+        #regression trend line
         fig.add_trace(go.Scatter(
             x=df["Date"],
             y=df["Trend"],
@@ -157,7 +129,7 @@ class HbPredictionUtil:
             line=dict(color="red", width=3, dash="dash")
         ))
 
-        # Predicted future point
+        #predicted future point
         fig.add_trace(go.Scatter(
             x=[future_date],
             y=[predicted_hb],
@@ -170,7 +142,7 @@ class HbPredictionUtil:
             )
         ))
 
-        # Line connecting last point to prediction
+        #line connecting last point to prediction
         fig.add_trace(go.Scatter(
             x=[df["Date"].iloc[-1], future_date],
             y=[df["Hb"].iloc[-1], predicted_hb],
@@ -179,7 +151,7 @@ class HbPredictionUtil:
             line=dict(color="green", dash="dot")
         ))
 
-        # Normal Hb range shading
+        #normal Hb range shading
         fig.add_shape(
             type="rect",
             x0=df["Date"].min(),
@@ -191,7 +163,7 @@ class HbPredictionUtil:
             layer="below"
         )
 
-        # Anemia threshold line
+        #anemia threshold line
         fig.add_hline(
             y=12,
             line_dash="dash",

@@ -100,6 +100,28 @@
                             </div>
                         </li>
                         {% endfor %}
+                        <!-- Model Metrics -->
+                        <div class="card border-0 shadow-sm p-3 mt-4" style="border-radius: 16px;">
+                            <h6 class="fw-bold text-muted mb-2">Model Performance</h6>
+
+                            <!-- High-level metrics -->
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Accuracy</span>
+                                <span class="fw-bold">{{ result.metrics.accuracy | round(1) }}%</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Top-3 Accuracy</span>
+                                <span class="fw-bold">{{ result.metrics.top_3_accuracy | round(1) }}%</span>
+                            </div>
+
+                            <!-- Optional confusion matrix -->
+                            {% if result.graph_confusion_matrix_html %}
+                            <h6 class="fw-bold text-muted mt-3 mb-2">Confusion Matrix</h6>
+                            <div>
+                                {{ result.graph_confusion_matrix_html | safe }}
+                            </div>
+                            {% endif %}
+                        </div>
                     </ul>
 
                     <!-- Graph -->

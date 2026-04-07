@@ -13,30 +13,23 @@ class NutrientDeficiencyUtil:
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))
     MODEL_PATH = os.path.join(BASE_DIR, "deficiency_model.pkl")
 
-    # -----------------------------
-    # 1️⃣ Load trained Random Forest model
-    # -----------------------------
+    #Load trained Random Forest model
     with open(MODEL_PATH, "rb") as f:
-        model, symptom_cols = pickle.load(f)
+        model, symptom_cols, metrics = pickle.load(f)
     model: RandomForestClassifier
+    evaluation_metrics = metrics
 
-    # -----------------------------
-    # 2️⃣ Initialize embedding model
-    # -----------------------------
+    #Initialize embedding model
     embedding_model = SentenceTransformer("all-MiniLM-L6-v2")
 
-    # -----------------------------
-    # 3️⃣ Canonical symptom list
-    # -----------------------------
+    #Canonical symptom list
     SYMPTOMS = symptom_cols  # Ensures embedding vector and RF columns match exactly
 
     symptom_embeddings = embedding_model.encode(
         [s.lower() for s in SYMPTOMS], normalize_embeddings=True
     )
 
-    # -----------------------------
-    # 4️⃣ Map free-text input to symptom vector
-    # -----------------------------
+    #Map free-text input to symptom vector
     @staticmethod
     def map_input_to_symptom_vector(user_text, threshold=0.5):
         """
@@ -55,9 +48,7 @@ class NutrientDeficiencyUtil:
 
         return vector
 
-    # -----------------------------
-    # 5️⃣ Predict deficiencies + probabilities
-    # -----------------------------
+    #Predict deficiencies + probabilities
     @staticmethod
     def predict_top_deficiencies(user_text, top_n=3, threshold=0.5):
         """
@@ -76,8 +67,20 @@ class NutrientDeficiencyUtil:
 
         results_sorted = sorted(results, key=lambda x: x["confidence"], reverse=True)
         top_results = results_sorted[:top_n]
+        m = NutrientDeficiencyUtil.get_model_metrics()
+        #print(metrics)
 
-        return top_results, results_sorted
+        return {
+            "predictions": top_results,
+            "all_probabilities": results_sorted,
+            "metrics": {
+                "accuracy": round(m["accuracy"] * 100, 2),
+                "top_3_accuracy": round(m["top_3_accuracy"] * 100, 2),
+                "log_loss": round(m["log_loss"], 3),
+                "confusion_matrix": m["confusion_matrix"],
+                "labels": list(NutrientDeficiencyUtil.model.classes_)
+            }
+        }
 
         
     @staticmethod
@@ -88,3 +91,16 @@ class NutrientDeficiencyUtil:
     def get_health_tips():
         random_number = random.randint(0, len(HEALTH_TIPS)-1)
         return HEALTH_TIPS[random_number]
+    
+    @staticmethod
+    def get_model_metrics():
+        return NutrientDeficiencyUtil.evaluation_metrics
+    
+    @staticmethod
+    def get_summary_metrics():
+        m = NutrientDeficiencyUtil.evaluation_metrics
+        return {
+            "accuracy": round(m["accuracy"] * 100, 2),
+            "top_3_accuracy": round(m["top_3_accuracy"] * 100, 2),
+            "log_loss": round(m["log_loss"], 3)
+        }

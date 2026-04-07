@@ -10,10 +10,13 @@ class NutrientService:
         if not symptoms:
             raise ValueError("Symptoms input required")
 
-        # Get predictions and probabilities
-        top_results, all_results = NutrientDeficiencyUtil.predict_top_deficiencies(
+        response = NutrientDeficiencyUtil.predict_top_deficiencies(
             symptoms, top_n=top_n, threshold=threshold
         )
+
+        top_results = response["predictions"]
+        all_results = response["all_probabilities"]
+        metrics = response["metrics"]
 
         primary_deficiency = top_results[0]["deficiency"] if top_results else None
 
@@ -66,13 +69,41 @@ class NutrientService:
             config={'responsive': True}
         )
 
+        # --------------------------
+        # Heatmap for confusion matrix
+        # --------------------------
+        if "confusion_matrix" in metrics and "labels" in metrics:
+            fig_cm = go.Figure(
+                data=go.Heatmap(
+                    z=metrics["confusion_matrix"],
+                    x=metrics["labels"],
+                    y=metrics["labels"],
+                    colorscale='Blues',
+                    showscale=True,
+                    text=metrics["confusion_matrix"],
+                    texttemplate="%{text}",
+                )
+            )
+            fig_cm.update_layout(
+                title=dict(text="Model Confusion Matrix", x=0.5, xanchor='center'),
+                xaxis_title="Predicted",
+                yaxis_title="Actual",
+                template="plotly_white",
+                height=450,
+            )
+            graph_cm_html = pio.to_html(fig_cm, full_html=False, include_plotlyjs='cdn', config={'responsive': True})
+        else:
+            graph_cm_html = None
+
         return {
             "symptoms": symptoms,
             "primary_deficiency": primary_deficiency,
             "top_deficiencies": top_results,
             "diet_plan": diet_plan,
             "health_tip": health_tip,
-            "graph_html": graph_html
+            "graph_confusion_matrix_html": graph_cm_html,
+            "graph_html": graph_html,
+            "metrics": metrics
         }
         
     @staticmethod
