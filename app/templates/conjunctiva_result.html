@@ -99,12 +99,7 @@
                             </div>
                         </div>
                         {% endfor %}
-
-
                     </div>
-                    
-
-
                 </div>
             </div>
 
@@ -120,7 +115,7 @@
         <!-- RIGHT: Numeric Results & Risk -->
         <div class="col-lg-4">
             <!-- Likelihood Score -->
-            <div class="card border-0 shadow-sm p-4 mb-4 text-center" style="border-radius: 20px;">
+            <div class="card border-0 shadow-sm p-4 mb-3 text-center" style="border-radius: 20px;">
                 <h6 class="fw-bold text-muted text-uppercase small mb-3">Anemia Likelihood</h6>
                 <div class="display-4 fw-bold text-danger mb-1">{{ result.score }}%</div>
                 <div class="badge 
@@ -133,28 +128,76 @@
                 <p class="text-muted x-small mt-3 mb-0">
                     Heuristic score averaged across all detected valid eye regions.
                 </p>
-            </div>            
+            </div>   
+            
+            
 
-            <!-- Detailed Features -->
-            <div class="card border-0 shadow-sm p-4 mb-4" style="border-radius: 20px;">
-                <h6 class="fw-bold text-muted text-uppercase small mb-4">Mean Spectral Features</h6>
-                
+        <!-- Feature Analysis -->
+        <div class="card border-0 shadow-sm p-3 mb-4" style="border-radius: 20px;">
+            <h6 class="fw-bold text-muted text-uppercase small mb-4">Feature Analysis</h6>
+
+            <div class="feature-row d-flex justify-content-between mb-3 pb-2 border-bottom">
+                <span class="small text-muted">Mean Lightness (L*)</span>
+                <span class="fw-bold">{{ result.features['mean_lightness'] }}</span>
+                {% if result.features['mean_lightness'] > 115 %}
+                    <span class="badge bg-danger">Risk</span>
+                {% else %}
+                    <span class="badge bg-success">Normal</span>
+                {% endif %}
+            </div>
+
+            <div class="feature-row d-flex justify-content-between mb-3 pb-2 border-bottom">
+                <span class="small text-muted">Mean Redness (a*)</span>
+                <span class="fw-bold text-danger">{{ result.features['mean_redness'] }}</span>
+                {% if result.features['mean_redness'] < 145 %}
+                    <span class="badge bg-danger">Risk</span>
+                {% else %}
+                    <span class="badge bg-success">Normal</span>
+                {% endif %}
+            </div>
+
+            <div class="feature-row d-flex justify-content-between mb-3 pb-2 border-bottom">
+                <span class="small text-muted">Mean Saturation (S)</span>
+                <span class="fw-bold">{{ result.features['mean_saturation'] }}</span>
+                {% if result.features['mean_saturation'] < 45 %}
+                    <span class="badge bg-danger">Risk</span>
+                {% else %}
+                    <span class="badge bg-success">Normal</span>
+                {% endif %}
+            </div>
+
+            <div class="feature-row d-flex justify-content-between mb-0">
+                <span class="small text-muted">Mean Value (V)</span>
+                <span class="fw-bold">{{ result.features['mean_value'] }}</span>
+            </div>
+
+            </div>
+            <!-- Contributions Breakdown -->
+            <div class="card border-0 shadow-sm p-3 mb-4" style="border-radius: 20px;">
+                <h6 class="fw-bold text-muted text-uppercase small mb-4">Contributions Breakdown</h6>
+                {% for feature, value in result.contributions.items() %}
                 <div class="feature-row d-flex justify-content-between mb-3 pb-2 border-bottom">
-                    <span class="small text-muted">Mean Lightness (L*)</span>
-                    <span class="fw-bold">{{ result.features['mean_lightness'] }}</span>
+                    <span class="small text-muted">{{ feature|capitalize }}</span>
+                    <span class="fw-bold {% if value > 0 %}text-danger{% else %}text-success{% endif %}">
+                        {{ value }}
+                    </span>
                 </div>
-                <div class="feature-row d-flex justify-content-between mb-3 pb-2 border-bottom">
-                    <span class="small text-muted">Mean Redness (a*)</span>
-                    <span class="fw-bold text-danger">{{ result.features['mean_redness'] }}</span>
-                </div>
-                <div class="feature-row d-flex justify-content-between mb-3 pb-2 border-bottom">
-                    <span class="small text-muted">Mean Saturation (S)</span>
-                    <span class="fw-bold">{{ result.features['mean_saturation'] }}</span>
-                </div>
-                <div class="feature-row d-flex justify-content-between mb-0">
-                    <span class="small text-muted">Mean Value (V)</span>
-                    <span class="fw-bold">{{ result.features['mean_value'] }}</span>
-                </div>
+                {% endfor %}
+                <p class="x-small text-muted mt-2 mb-0">
+                    Each feature shows how much it contributed to the final anemia score.
+                </p>
+            </div>
+
+            <!-- Interpretation Note -->
+            <div class="alert alert-light border-start border-1 border-success mt-3 mb-3 p-2.5" style="border-radius: 12px;">
+                <h6 class="fw-bold text-muted small mb-2">
+                    <i class="bi bi-info-circle me-2"></i>Interpretation
+                </h6>
+                <p class="x-small text-muted mb-0">
+                    Contributions show how each feature influenced the anemia score. 
+                    <span class="text-danger fw-bold">Red values</span> indicate risk factors, while 
+                    <span class="text-success fw-bold">green values</span> indicate normal ranges.
+                </p>
             </div>
 
             <!-- Health Action -->
@@ -187,6 +230,10 @@
         .eye-thumbnail {
             width: 220px !important;  /* smaller in report */
             height: 200px !important;
+        }
+        .alert {
+            border: none !important;   /* remove all borders */
+            box-shadow: none !important; /* remove shadow if any */
         }
         .d-inline-block { display: inline-block !important; }
         .text-center { text-align: center !important; }

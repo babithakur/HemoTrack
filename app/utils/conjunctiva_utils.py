@@ -61,13 +61,64 @@ def average_features(feature_list):
         return None
     return {k: round(np.mean([f[k] for f in feature_list]), 2) for k in feature_list[0].keys()}
 
+# def predict_anemia(features):
+#     redness, saturation, lightness = features["mean_redness"], features["mean_saturation"], features["mean_lightness"]
+#     score = 0
+
+#     if saturation < 30: score += 50   # was <20
+#     elif saturation < 45: score += 30 # was <35
+
+#     if redness < 145: score += 30     # was <132
+#     if lightness > 115: score += 20   # was >120
+
+#     if score >= 70: return "High anemia likelihood", score
+#     elif score >= 40: return "Moderate anemia likelihood", score
+#     else: return "Low anemia likelihood", score
+
 def predict_anemia(features):
-    redness, saturation, lightness = features["mean_redness"], features["mean_saturation"], features["mean_lightness"]
+    redness, saturation, lightness = (
+        features["mean_redness"],
+        features["mean_saturation"],
+        features["mean_lightness"]
+    )
     score = 0
-    if saturation < 20: score += 50
-    elif saturation < 35: score += 30
-    if redness < 132: score += 30
-    if lightness > 120: score += 20
-    if score >= 70: return "High anemia likelihood", score
-    elif score >= 40: return "Moderate anemia likelihood", score
-    else: return "Low anemia likelihood", score
+    contributions = {}
+
+    # Saturation contribution
+    if saturation < 30:
+        contributions["saturation"] = +50
+        score += 50
+    elif saturation < 45:
+        contributions["saturation"] = +30
+        score += 30
+    else:
+        contributions["saturation"] = 0
+
+    # Redness contribution
+    if redness < 145:
+        contributions["redness"] = +30
+        score += 30
+    else:
+        contributions["redness"] = 0
+
+    # Lightness contribution
+    if lightness > 115:
+        contributions["lightness"] = +20
+        score += 20
+    else:
+        contributions["lightness"] = 0
+
+    # Final prediction
+    if score >= 70:
+        prediction = "High anemia likelihood"
+    elif score >= 40:
+        prediction = "Moderate anemia likelihood"
+    else:
+        prediction = "Low anemia likelihood"
+
+    return {
+        "prediction": prediction,
+        "score": score,
+        "contributions": contributions
+    }
+

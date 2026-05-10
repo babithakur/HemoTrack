@@ -147,7 +147,11 @@ class UserService:
 
             features = extract_anemia_features(preprocessed_roi)
             if features and features["mean_value"] >= 80:
-                prediction, score = predict_anemia(features)
+                result_dict = predict_anemia(features)
+                prediction = result_dict["prediction"]
+                score = result_dict["score"]
+                contributions = result_dict["contributions"]
+
                 feature_list.append(features)
                 scores.append(score)
 
@@ -167,6 +171,7 @@ class UserService:
             "features": avg_features,
             "score": round(final_score, 2),
             "prediction": final_prediction,
+            "contributions": contributions,
             "images": image_data,
             "detected_eyes": detected_eyes
         }
