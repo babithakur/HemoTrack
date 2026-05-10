@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash, session
+from flask import Blueprint, render_template, request, redirect, url_for, flash, session, jsonify
 from app.service.user_service import UserService
 from app.utils.auth import login_required
 from app.service.report_service import ReportService
@@ -90,3 +90,15 @@ def settings():
         except ValueError as e:
             flash(str(e), "error")
             return redirect(url_for("user.settings"))
+
+@user_bp.route("/conjunctiva-scan", methods=["GET", "POST"])
+def conjunctiva_scan():
+    if request.method == "POST":
+        if "eye_image" not in request.files:
+            return jsonify({"error": "No image uploaded"}), 400
+        image_file = request.files["eye_image"]
+        path = f"/tmp/{image_file.filename}"
+        image_file.save(path)
+        result = UserService.analyze_conjunctiva(path)
+        return render_template("conjunctiva_result.html", result=result)
+    return render_template("conjunctiva_scan.html")

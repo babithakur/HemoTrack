@@ -1,14 +1,45 @@
 body { font-family: 'Inter', sans-serif; background-color: #f8f9fa; }
-        
-/* Sidebar Styling */
+
 .sidebar {
-    min-width: 280px;
-    max-width: 280px;
-    background: #fff;
-    min-height: 100vh;
-    border-right: 1px solid #eee;
+    width: 280px;
+    height: 100vh;
     position: fixed;
+    background: #fff;
+    border-right: 1px solid #eee;
+
+    display: flex;
+    flex-direction: column;
 }
+
+/* middle section takes remaining space */
+.sidebar-menu {
+    flex: 1;
+    overflow-y: auto;
+}
+
+/* force clean vertical layout */
+.sidebar-menu .nav {
+    display: flex;
+    flex-direction: column;
+}
+
+/* prevent weird wrapping */
+.sidebar-menu .nav li {
+    width: 100%;
+}
+
+/* footer stays fixed at bottom */
+.sidebar-footer {
+    flex-shrink: 0;
+    background: #fff;
+}
+
+/* Ensure the logout link changes color on hover */
+.text-danger:hover {
+    color: #a52626 !important;
+    text-decoration: underline !important;
+}
+
 .main-content { margin-left: 280px; padding: 40px; }
         
 .nav-link {

@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HemoTrack | Conjunctiva Scan</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+</head>
+<body>
+<div class="container-fluid py-4">
+    <div class="row align-items-center mb-4 px-3">
+        <div class="col-md-6 d-flex align-items-center">
+            <div class="me-3">
+                <img src="{{ url_for('static', filename='images/logo2.png') }}" 
+                     alt="HemoTrack Logo" 
+                     height="55" 
+                     class="d-inline-block align-middle">
+            </div>
+            <div>
+                <h2 class="fw-bold text-danger mb-0" style="letter-spacing: -1px; line-height: 1;">HemoTrack</h2>
+                <span class="badge bg-danger-subtle text-danger x-small text-uppercase fw-bold" style="font-size: 0.65rem;">AI Diagnostics</span>
+            </div>
+        </div>
+    </div>
+    
+    <hr class="mx-3 opacity-25">
+    
+    <div class="row mb-4 px-3 mt-4">
+        <div class="col-12">
+            <h3 class="fw-bold mb-1">Conjunctiva <span class="text-danger">Scan</span></h3>
+            <p class="text-muted small mb-0">
+                <i class="bi bi-camera me-1 text-danger"></i> 
+                Non-invasive anemia screening via palpebral conjunctiva color analysis.
+            </p>
+        </div>
+    </div>
+
+    <div class="row g-4 px-3">
+        <!-- LEFT: Instructions & Best Practices -->
+        <div class="col-lg-5">
+            <div class="card border-0 shadow-sm p-4 h-100" style="border-radius: 20px;">
+                <h5 class="fw-bold mb-4">Capture Instructions</h5>
+                
+                <div class="d-flex mb-4">
+                    <div class="step-num me-3">1</div>
+                    <div>
+                        <h6 class="fw-bold mb-1">Bright Natural Light</h6>
+                        <p class="small text-muted mb-0">Stand near a window. Avoid yellow indoor bulbs or dark shadows.</p>
+                    </div>
+                </div>
+
+                <div class="d-flex mb-4">
+                    <div class="step-num me-3">2</div>
+                    <div>
+                        <h6 class="fw-bold mb-1">Expose the Conjunctiva</h6>
+                        <p class="small text-muted mb-0">Gently pull your lower eyelid down until the pink/white inner tissue is visible.</p>
+                    </div>
+                </div>
+
+                <div class="d-flex mb-4">
+                    <div class="step-num me-3">3</div>
+                    <div>
+                        <h6 class="fw-bold mb-1">Stable Focus</h6>
+                        <p class="small text-muted mb-0">Hold the camera 6-8 inches away. Ensure the inner eyelid is sharp and not blurry.</p>
+                    </div>
+                </div>
+
+                <div class="alert alert-warning rounded-4 border-0 mt-auto">
+                    <div class="d-flex">
+                        <i class="bi bi-exclamation-triangle-fill me-3 fs-4"></i>
+                        <p class="x-small mb-0">
+                            <strong>Note:</strong> This tool is for screening purposes. Pallor (paleness) can be an indicator, but it does not replace a clinical blood test.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT: Upload & Prediction -->
+        <div class="col-lg-7">
+            <div class="card border-0 shadow-sm p-4 h-100" style="border-radius: 20px;">
+                <form action="/conjunctiva-scan" method="POST" enctype="multipart/form-data">
+                    <div class="upload-zone rounded-4 border-dashed p-5 text-center mb-4" id="drop-zone">
+                        <input type="file" name="eye_image" id="eye_image" class="d-none" accept="image/*" onchange="previewImage(event)">
+                        <div id="upload-placeholder">
+                            <i class="bi bi-camera-fill display-4 text-danger mb-3"></i>
+                            <h6 class="fw-bold">Upload or Take Photo</h6>
+                            <p class="text-muted small">Click to browse or drag and drop your eye image here</p>
+                            <button type="button" class="btn btn-outline-danger rounded-pill btn-sm px-4" onclick="document.getElementById('eye_image').click()">Select Image</button>
+                        </div>
+                        <img id="image-preview" class="img-fluid rounded-3 d-none shadow-sm" style="max-height: 350px;">
+                    </div>
+
+                    <div id="analysis-metrics" class="d-none mb-4">
+                        <div class="p-3 bg-light rounded-4 d-flex justify-content-between align-items-center">
+                            <span class="small fw-bold">Image Quality Check:</span>
+                            <span class="badge bg-success rounded-pill px-3">Passed</span>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-danger btn-lg w-100 rounded-pill shadow" id="predict-btn" disabled>
+                        Analyze Pallor Intensity
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .border-dashed {
+        border: 2px dashed #dee2e6 !important;
+        background-color: #f8f9fa;
+        transition: all 0.2s;
+    }
+    .step-num {
+        background: #fceaea;
+        color: #d32f2f;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        flex-shrink: 0;
+    }
+    .x-small { font-size: 0.75rem; }
+    
+    #drop-zone:hover {
+        border-color: #d32f2f !important;
+        background-color: #fff5f5;
+    }
+</style>
+
+<script>
+function previewImage(event) {
+    const reader = new FileReader();
+    reader.onload = function() {
+        const output = document.getElementById('image-preview');
+        const placeholder = document.getElementById('upload-placeholder');
+        const btn = document.getElementById('predict-btn');
+        const metrics = document.getElementById('analysis-metrics');
+        
+        output.src = reader.result;
+        output.classList.remove('d-none');
+        placeholder.classList.add('d-none');
+        btn.disabled = false;
+        metrics.classList.remove('d-none');
+    };
+    reader.readAsDataURL(event.target.files[0]);
+}
+</script>
+</body>
+</html>

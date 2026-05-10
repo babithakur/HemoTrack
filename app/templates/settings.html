@@ -19,83 +19,100 @@
         {% endfor %}
     {% endif %}
     {% endwith %}
-    <div class="container-fluid py-4">
-        <div class="mb-5 px-3 text-center">
-            <h2 class="fw-bold mb-1">Account <span class="text-danger">Settings</span></h2>
-            <p class="text-muted small">Manage your personal information and security preferences.</p>
-        </div>
+    <div class="container-fluid pt-2 pb-5">
     
-        <div class="row justify-content-center px-3">
-            <div class="col-lg-6 col-md-8">
-                <div class="card border-0 shadow-sm p-4 p-md-5" style="border-radius: 24px;">
-                    
-                    <form action="/settings" method="POST">
-                        <div class="d-flex align-items-center mb-4">
-                            <div class="bg-danger-subtle text-danger p-3 rounded-circle me-3">
-                                <i class="bi bi-person-gear fs-4"></i>
-                            </div>
-                            <h5 class="fw-bold mb-0">Personal Profile</h5>
-                        </div>
-    
-                        <div class="mb-4">
-                            <label class="form-label small fw-bold text-uppercase text-muted">Full Name</label>
-                            <div class="input-group">
-                                <span class="input-group-text bg-light border-0 rounded-start-pill px-3">
-                                    <i class="bi bi-person text-muted"></i>
-                                </span>
-                                <input type="text" name="name" class="form-control bg-light border-0 rounded-end-pill py-2" 
-                                       value="{{ name }}" placeholder="Enter your name">
-                            </div>
-                        </div>
-    
-                        <hr class="my-5 opacity-25">
-    
-                        <div class="d-flex align-items-center mb-4">
-                            <div class="bg-danger-subtle text-danger p-3 rounded-circle me-3">
-                                <i class="bi bi-shield-lock fs-4"></i>
-                            </div>
-                            <h5 class="fw-bold mb-0">Security & Password</h5>
-                        </div>
-    
-                        <div class="mb-3">
-                            <label class="form-label small fw-bold text-uppercase text-muted">Current Password</label>
-                            <input type="password" name="current_password" class="form-control bg-light border-0 rounded-pill py-2 px-4" 
-                                   placeholder="••••••••">
-                        </div>
-    
-                        <div class="mb-4">
-                            <label class="form-label small fw-bold text-uppercase text-muted">New Password</label>
-                            <input type="password" name="new_password" class="form-control bg-light border-0 rounded-pill py-2 px-4" 
-                                   placeholder="Leave blank to keep current">
-                            <div class="form-text px-2 x-small">Use at least 8 characters with a mix of letters and numbers.</div>
-                        </div>
-    
-                        <div class="row g-3 mt-4 pt-2">
-                            <div class="col-md-8">
-                                <button type="submit" class="btn btn-danger btn-lg w-100 rounded-pill shadow-sm">
-                                    <i class="bi bi-check-circle me-2"></i>Save Changes
-                                </button>
-                            </div>
-                            <div class="col-md-4">
-                                <a href="/dashboard" class="btn btn-light btn-lg w-100 rounded-pill border">
-                                    Cancel
-                                </a>
-                            </div>
-                        </div>
-                    </form>
-    
-                </div>
-    
-                <div class="mt-4 p-4 rounded-4 bg-danger-subtle border border-danger border-opacity-10 d-flex justify-content-between align-items-center">
-                    <div>
-                        <h6 class="fw-bold text-danger mb-1">Delete Account</h6>
-                        <p class="mb-0 x-small text-danger-emphasis">Permanently remove all your medical data and Hb history.</p>
-                    </div>
-                    <button class="btn btn-sm btn-outline-danger rounded-pill px-3">Delete</button>
-                </div>
+    <div class="row align-items-center mb-2 px-3 mt-0">
+        <div class="col-md-6 d-flex align-items-center">
+            <div class="me-3">
+                <img src="{{ url_for('static', filename='images/logo2.png') }}" 
+                     alt="HemoTrack Logo" 
+                     height="55" 
+                     class="d-inline-block align-middle">
+            </div>
+            <div>
+                <h2 class="fw-bold text-danger mb-0" style="letter-spacing: -1px; line-height: 1;">HemoTrack</h2>
+                <span class="badge bg-danger-subtle text-danger x-small text-uppercase fw-bold" style="font-size: 0.65rem;">User Control</span>
             </div>
         </div>
     </div>
+
+    <hr class="mx-3 mt-1 mb-3 opacity-25">
+
+    <div class="px-3 pt-0 mt-1 mb-4 text-center"> 
+        <h2 class="fw-bold mb-1">Account <span class="text-danger">Settings</span></h2>
+        <p class="text-muted small mb-0 mx-auto" style="max-width: 500px;">
+            <i class="bi bi-shield-lock me-1 text-danger"></i> 
+            Manage your personal information and security preferences.
+        </p>
+    </div>
+
+    <div class="row justify-content-center px-3 mt-2">
+        <div class="col-lg-6 col-md-10">
+            <div class="card border-0 shadow-sm p-4 p-md-5" style="border-radius: 24px;">
+                <form action="/settings" method="POST">
+                    <div class="d-flex align-items-center mb-4">
+                        <div class="bg-danger-subtle text-danger p-3 rounded-circle me-3">
+                            <i class="bi bi-person-gear fs-4"></i>
+                        </div>
+                        <h5 class="fw-bold mb-0">Personal Profile</h5>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label small fw-bold text-uppercase text-muted">Full Name</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-0 rounded-start-pill px-3">
+                                <i class="bi bi-person text-muted"></i>
+                            </span>
+                            <input type="text" name="name" class="form-control bg-light border-0 rounded-end-pill py-2" 
+                                   value="{{ name }}" placeholder="Enter your name">
+                        </div>
+                    </div>
+
+                    <hr class="my-5 opacity-25">
+
+                    <div class="d-flex align-items-center mb-4">
+                        <div class="bg-danger-subtle text-danger p-3 rounded-circle me-3">
+                            <i class="bi bi-shield-lock fs-4"></i>
+                        </div>
+                        <h5 class="fw-bold mb-0">Security & Password</h5>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-uppercase text-muted">Current Password</label>
+                        <input type="password" name="current_password" class="form-control bg-light border-0 rounded-pill py-2 px-4" 
+                               placeholder="••••••••">
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label small fw-bold text-uppercase text-muted">New Password</label>
+                        <input type="password" name="new_password" class="form-control bg-light border-0 rounded-pill py-2 px-4" 
+                               placeholder="Leave blank to keep current">
+                        <div class="form-text px-2 x-small">Use at least 8 characters with a mix of letters and numbers.</div>
+                    </div>
+
+                    <div class="row g-3 mt-4 pt-2">
+                        <div class="col-md-8">
+                            <button type="submit" class="btn btn-danger btn-lg w-100 rounded-pill shadow-sm">
+                                <i class="bi bi-check-circle me-2"></i>Save Changes
+                            </button>
+                        </div>
+                        <div class="col-md-4">
+                            <a href="/dashboard" class="btn btn-light btn-lg w-100 rounded-pill border">Cancel</a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div class="mt-4 p-4 rounded-4 bg-danger-subtle border border-danger border-opacity-10 d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="fw-bold text-danger mb-1">Delete Account</h6>
+                    <p class="mb-0 x-small text-danger-emphasis">Permanently remove all your medical data and Hb history.</p>
+                </div>
+                <button class="btn btn-sm btn-outline-danger rounded-pill px-3">Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
     
     <style>
         /* Styling to match HemoTrack theme */

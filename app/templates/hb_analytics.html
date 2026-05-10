@@ -3,16 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HemoTrack | My Reports</title>
+    <title>HemoTrack | Hb Analytics</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
 </head>
 <body>
 <div class="container-fluid py-4">
-    <div class="mb-5 px-3">
-        <h2 class="fw-bold mb-1">Hb <span class="text-danger">Analytics</span></h2>
-        <p class="text-muted small">AI-driven trend analysis and future hemoglobin predictions.</p>
+    <div class="container-fluid pt-2 pb-4">
+        <div class="row align-items-center mb-2 px-3"> <div class="col-md-6 d-flex align-items-center">
+                <div class="me-3">
+                    <img src="{{ url_for('static', filename='images/logo2.png') }}" 
+                         alt="HemoTrack Logo" 
+                         height="55" 
+                         class="d-inline-block align-middle">
+                </div>
+                <div>
+                    <h2 class="fw-bold text-danger mb-0" style="letter-spacing: -1px; line-height: 1;">HemoTrack</h2>
+                    <span class="badge bg-danger-subtle text-danger x-small text-uppercase fw-bold" style="font-size: 0.65rem;">Predictive AI</span>
+                </div>
+            </div>
+        </div>
+    
+        <hr class="mx-3 mt-1 mb-3 opacity-25"> <div class="px-3 pt-0 mt-1"> 
+            <h3 class="fw-bold mb-1">Hb <span class="text-danger">Analytics</span></h3>
+            <p class="text-muted small mb-0">
+                <i class="bi bi-graph-up-arrow me-1 text-danger"></i> 
+                AI-driven trend analysis and future hemoglobin predictions.
+            </p>
+        </div>
+        
     </div>
 
     <div class="row g-4 px-3">

@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HemoTrack | Conjunctiva Result</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+</head>
+<body>
+<div class="container-fluid py-4">
+    <div class="row align-items-center mb-4 px-3">
+        <div class="col-md-6 d-flex align-items-center">
+            <div class="me-3">
+                <img src="{{ url_for('static', filename='images/logo2.png') }}" 
+                     alt="HemoTrack Logo" 
+                     height="55" 
+                     class="d-inline-block align-middle">
+            </div>
+            <div>
+                <h2 class="fw-bold text-danger mb-0" style="letter-spacing: -1px; line-height: 1;">HemoTrack</h2>
+                <span class="badge bg-danger-subtle text-danger x-small text-uppercase fw-bold" style="font-size: 0.65rem;">AI Diagnostics</span>
+            </div>
+        </div>
+    
+        <div class="col-md-6 text-md-end d-none d-md-block">
+            <button class="btn btn-outline-dark rounded-pill px-4 btn-sm shadow-sm" onclick="window.print()">
+                <i class="bi bi-printer me-2"></i>Download PDF
+            </button>
+        </div>
+    </div>
+    
+    <hr class="mx-3 opacity-25">
+    
+    <div class="row mb-4 px-3 mt-4">
+        <div class="col-12">
+            <h3 class="fw-bold mb-1">Diagnostic <span class="text-danger">Report</span></h3>
+            <p class="text-muted small mb-0">
+                <i class="bi bi-cpu me-1 text-danger"></i> 
+                Automated Pallor Intensity Analysis via Dual-Eye Computer Vision Pipeline.
+            </p>
+        </div>
+    </div>
+    
+
+    <div class="row g-4 px-3">
+        <!-- LEFT: Visual Pipeline (The Processing Steps) -->
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm p-4 mb-4" style="border-radius: 20px;">
+                <h6 class="fw-bold text-muted text-uppercase small mb-4">Vision Pipeline Visualization</h6>
+                
+                <div class="row g-3">
+                    <!-- Source Image -->
+                    <div class="col-12 mb-3">
+                        <label class="small fw-bold text-muted mb-2 d-block">Input Image (Haar Cascade Detection)</label>
+                        <div class="text-center">
+                            {% for eye in result.detected_eyes %}
+                                <div class="d-inline-block mx-2 border rounded overflow-hidden eye-thumbnail">
+                                    <small class="x-small text-muted d-block mb-1 text-center">
+                                        Eye #{{ loop.index }} ({{ eye.side }})
+                                    </small>
+                                    <img src="data:image/jpeg;base64, {{ result.images[eye.eye_key] }}"
+                                         class="img-fluid w-100 h-100 object-fit-cover" alt="Eye {{ loop.index }}">
+                                </div>
+                            {% endfor %}
+                        </div>
+                        
+                        
+                    </div>
+                    <div class="row g-3">
+                        {% for eye in result.detected_eyes %}
+                        <div class="col-12">
+                            <div class="p-3 border rounded-4 bg-light">
+                                <h6 class="small fw-bold mb-3 text-center text-danger">
+                                    Eye Region #{{ loop.index }} ({{ eye.side }})
+                                </h6>
+                                <div class="row g-3">
+                                    <!-- ROI (left half) -->
+                                    <div class="col-6">
+                                        <small class="x-small text-muted d-block mb-2 text-center">Extracted ROI</small>
+                                        <div class="bg-white rounded border overflow-hidden d-flex align-items-center justify-content-center" style="height: 220px;">
+                                            <img src="data:image/jpeg;base64, {{ result.images[eye.roi_key] }}" class="img-fluid object-fit-cover">
+                                        </div>
+                                    </div>
+                                    <!-- Preprocessed (right half) -->
+                                    <div class="col-6">
+                                        <small class="x-small text-muted d-block mb-2 text-center">LAB Preprocessed</small>
+                                        <div class="bg-white rounded border overflow-hidden d-flex align-items-center justify-content-center" style="height: 220px;">
+                                            <img src="data:image/jpeg;base64, {{ result.images[eye.pre_key] }}" class="img-fluid object-fit-cover">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mt-3 p-2 bg-white rounded border border-opacity-10">
+                                    <p class="x-small mb-0 text-muted italic">
+                                        Applied: Gaussian Blur, CLAHE Normalization, Gamma Correction.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+
+
+                    </div>
+                    
+
+
+                </div>
+            </div>
+
+            <!-- Technical Pipeline Explanation -->
+            <div class="card border-0 shadow-sm p-4 bg-dark text-white" style="border-radius: 20px;">
+                <h6 class="fw-bold text-uppercase x-small opacity-50 mb-3">Computer Vision Methodology</h6>
+                <p class="small mb-0 opacity-75">
+                    The system implements a dual-eye aggregation model. We extract the <strong>palpebral conjunctiva</strong> by masking out iris pixels and shadows. Features are extracted in <strong>LAB and HSV spaces</strong>, prioritizing the <em>A-channel</em> (redness) and <em>S-channel</em> (saturation) to calculate pallor thresholds.
+                </p>
+            </div>
+        </div>
+
+        <!-- RIGHT: Numeric Results & Risk -->
+        <div class="col-lg-4">
+            <!-- Likelihood Score -->
+            <div class="card border-0 shadow-sm p-4 mb-4 text-center" style="border-radius: 20px;">
+                <h6 class="fw-bold text-muted text-uppercase small mb-3">Anemia Likelihood</h6>
+                <div class="display-4 fw-bold text-danger mb-1">{{ result.score }}%</div>
+                <div class="badge 
+                    {% if result.score >= 70 %}bg-danger
+                    {% elif result.score >= 40 %}bg-warning
+                    {% else %}bg-success{% endif %}
+                    rounded-pill px-4 py-2">
+                    {{ result.prediction }} (Score: {{ result.score }})
+                </div>                
+                <p class="text-muted x-small mt-3 mb-0">
+                    Heuristic score averaged across all detected valid eye regions.
+                </p>
+            </div>            
+
+            <!-- Detailed Features -->
+            <div class="card border-0 shadow-sm p-4 mb-4" style="border-radius: 20px;">
+                <h6 class="fw-bold text-muted text-uppercase small mb-4">Mean Spectral Features</h6>
+                
+                <div class="feature-row d-flex justify-content-between mb-3 pb-2 border-bottom">
+                    <span class="small text-muted">Mean Lightness (L*)</span>
+                    <span class="fw-bold">{{ result.features['mean_lightness'] }}</span>
+                </div>
+                <div class="feature-row d-flex justify-content-between mb-3 pb-2 border-bottom">
+                    <span class="small text-muted">Mean Redness (a*)</span>
+                    <span class="fw-bold text-danger">{{ result.features['mean_redness'] }}</span>
+                </div>
+                <div class="feature-row d-flex justify-content-between mb-3 pb-2 border-bottom">
+                    <span class="small text-muted">Mean Saturation (S)</span>
+                    <span class="fw-bold">{{ result.features['mean_saturation'] }}</span>
+                </div>
+                <div class="feature-row d-flex justify-content-between mb-0">
+                    <span class="small text-muted">Mean Value (V)</span>
+                    <span class="fw-bold">{{ result.features['mean_value'] }}</span>
+                </div>
+            </div>
+
+            <!-- Health Action -->
+            <div class="card border-0 shadow-sm p-4 bg-danger text-white" style="border-radius: 20px;">
+                <h6 class="fw-bold small mb-2"><i class="bi bi-info-circle me-2"></i>Recommended Action</h6>
+                <p class="x-small mb-0">
+                    {% if result.score > 50 %}
+                    High pallor detected. Please consult a healthcare professional for a complete blood count (CBC) test.
+                    {% else %}
+                    Tissue color appears within normal range. Continue monitoring symptoms in the "Diet & Symptoms" tab.
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .x-small { font-size: 0.72rem; }
+    .bg-danger-subtle { background-color: #fceaea !important; }
+    .object-fit-cover { object-fit: cover; }
+    .italic { font-style: italic; }
+
+    .eye-thumbnail {
+        width: 320px;   /* larger on webpage */
+        height: 320px;
+    }
+    
+    @media print {
+        .eye-thumbnail {
+            width: 220px !important;  /* smaller in report */
+            height: 200px !important;
+        }
+        .d-inline-block { display: inline-block !important; }
+        .text-center { text-align: center !important; }
+        .sidebar, .btn { display: none !important; }
+        .bg-dark { background-color: #fff !important; } /* keep visible, lighten background */
+        .card { box-shadow: none !important; border: 1px solid #eee !important; }
+    }
+</style>
+</body>
+</html>

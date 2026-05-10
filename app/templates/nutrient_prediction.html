@@ -10,9 +10,31 @@
 </head>
 <body>
     <div class="container-fluid py-4">
-        <div class="mb-5 px-3">
-            <h2 class="fw-bold mb-1">Diet & <span class="text-danger">Symptoms</span></h2>
-            <p class="text-muted small">Analyze your symptoms to identify potential nutrient gaps and optimize your recovery.</p>
+        <div class="row align-items-center mb-4 px-3">
+            <div class="col-md-6 d-flex align-items-center">
+                <div class="me-3">
+                    <img src="{{ url_for('static', filename='images/logo2.png') }}" 
+                         alt="HemoTrack Logo" 
+                         height="55" 
+                         class="d-inline-block align-middle">
+                </div>
+                <div>
+                    <h2 class="fw-bold text-danger mb-0" style="letter-spacing: -1px; line-height: 1;">HemoTrack</h2>
+                    <span class="badge bg-danger-subtle text-danger x-small text-uppercase fw-bold" style="font-size: 0.65rem;">Nutritional AI</span>
+                </div>
+            </div>
+        </div>
+        
+        <hr class="mx-3 opacity-25">
+        
+        <div class="row mb-4 px-3 mt-4">
+            <div class="col-12">
+                <h3 class="fw-bold mb-1">Diet & <span class="text-danger">Symptoms</span></h3>
+                <p class="text-muted small mb-0">
+                    <i class="bi bi-activity me-1 text-danger"></i> 
+                    Analyze your symptoms to identify potential nutrient gaps and optimize your recovery.
+                </p>
+            </div>
         </div>
     
         <div class="row g-4 px-3">

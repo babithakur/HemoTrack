@@ -3,6 +3,14 @@ from datetime import datetime, date
 from werkzeug.security import generate_password_hash, check_password_hash
 from app.repo.user_repo import UserRepo
 from flask import session
+import cv2
+import numpy as np
+from app.utils.conjunctiva_utils import (
+    detect_and_crop_eyes, extract_conjunctiva_from_eye,
+    preprocess_roi, extract_anemia_features,
+    predict_anemia, average_features
+)
+from app.utils.image_to_base64 import image_to_base64
 
 class UserService:
     @staticmethod
@@ -102,3 +110,68 @@ class UserService:
             user.password = hashed_pw
 
         return UserRepo.update_user(user)
+    
+    @staticmethod
+    def analyze_conjunctiva(image_path):
+        image = cv2.imread(image_path)
+        if image is None:
+            return {"error": "Invalid image"}
+
+        eyes = detect_and_crop_eyes(image)
+        if not eyes:
+            return {"error": "No eyes detected"}
+
+        feature_list, scores, image_data = [], [], {}
+        detected_eyes = []
+
+        for idx, eye_data in enumerate(eyes):
+            roi = extract_conjunctiva_from_eye(eye_data["eye"])
+            preprocessed_roi = preprocess_roi(roi)
+
+            # Encode images as base64
+            eye_key = f"eye_{idx+1}"
+            roi_key = f"roi_{idx+1}"
+            pre_key = f"preprocessed_{idx+1}"
+
+            image_data[eye_key] = image_to_base64(eye_data["eye"])
+            image_data[roi_key] = image_to_base64(roi)
+            image_data[pre_key] = image_to_base64(preprocessed_roi)
+
+            # Add metadata for template looping
+            detected_eyes.append({
+                "eye_key": eye_key,
+                "roi_key": roi_key,
+                "pre_key": pre_key,
+                "side": "Left" if idx == 0 else "Right"
+            })
+
+            features = extract_anemia_features(preprocessed_roi)
+            if features and features["mean_value"] >= 80:
+                prediction, score = predict_anemia(features)
+                feature_list.append(features)
+                scores.append(score)
+
+        if not scores:
+            return {"error": "No valid conjunctiva ROI"}
+
+        avg_features = average_features(feature_list)
+        final_score = float(np.mean(scores))
+        if final_score >= 70:
+            final_prediction = "High anemia likelihood"
+        elif final_score >= 40:
+            final_prediction = "Moderate anemia likelihood"
+        else:
+            final_prediction = "Low anemia likelihood"
+
+        return {
+            "features": avg_features,
+            "score": round(final_score, 2),
+            "prediction": final_prediction,
+            "images": image_data,
+            "detected_eyes": detected_eyes
+        }
+
+
+
+    
+
