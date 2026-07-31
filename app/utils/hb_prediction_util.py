@@ -58,51 +58,51 @@ class HbPredictionUtil:
         warning = None
 
         #rule 1: too little data
-        if len(df) < 4:
-            predicted_hb = df["Hb"].iloc[-1]  # fallback to latest
-            confidence = "Low"
-            warning = "Very limited data. Prediction based on latest value."
+        # if len(df) < 4:
+        #     predicted_hb = df["Hb"].iloc[-1]  # fallback to latest
+        #     confidence = "Low"
+        #     warning = "Very limited data. Prediction based on latest value."
 
         #rule 2: weak trend
-        elif r2 < 0.5:
-            predicted_hb = df["Hb"].iloc[-1]
-            confidence = "Low"
-            warning = "Hb trend is unstable. Prediction may not be reliable."
+        # elif r2 < 0.5:
+        #     predicted_hb = df["Hb"].iloc[-1]
+        #     confidence = "Low"
+        #     warning = "Hb trend is unstable. Prediction may not be reliable."
         
         #rule 3: large jump 
-        elif abs(predicted_hb_reg - df["Hb"].iloc[-1]) > 1.0:
-            predicted_hb = (predicted_hb_reg + df["Hb"].iloc[-1]) / 2
-            confidence = "Medium"
-            warning = "Large jump detected. Prediction smoothed."
+        # elif abs(predicted_hb_reg - df["Hb"].iloc[-1]) > 1.0:
+        #     predicted_hb = (predicted_hb_reg + df["Hb"].iloc[-1]) / 2
+        #     confidence = "Medium"
+        #     warning = "Large jump detected. Prediction smoothed."
         
         #rule 4: baseline
-        elif mse > baseline_mse:
-            predicted_hb = baseline_pred
-            confidence = "Low"
-            warning = "Model performs worse than baseline (last value)."
+        # elif mse > baseline_mse:
+        #     predicted_hb = baseline_pred
+        #     confidence = "Low"
+        #     warning = "Model performs worse than baseline (last value)."
         
         #rule 5: high error
-        elif rmse > 1.0:
-            predicted_hb = (predicted_hb_reg + predicted_hb_ma) / 2
-            confidence = "Medium"
-            warning = "Prediction adjusted due to high variability."
+        # elif rmse > 1.0:
+        #     predicted_hb = (predicted_hb_reg + predicted_hb_ma) / 2
+        #     confidence = "Medium"
+        #     warning = "Prediction adjusted due to high variability."
 
         #rule 6: good model
-        else:
-            predicted_hb = predicted_hb_reg
-            confidence = "High"
+        # else:
+        #     predicted_hb = predicted_hb_reg
+        #     confidence = "High"
         
-        if rmse > 1.0:
-            max_change = 0.8
-        else:
-            max_change = 1.2
+        # if rmse > 1.0:
+        #     max_change = 0.8
+        # else:
+        #     max_change = 1.2
 
-        last_hb = df["Hb"].iloc[-1]
-        delta = predicted_hb - last_hb
+        # last_hb = df["Hb"].iloc[-1]
+        # delta = predicted_hb - last_hb
 
-        if abs(delta) > max_change:
-            predicted_hb = last_hb + np.sign(delta) * max_change
-            warning = (warning + " " if warning else "") + "Clamped to realistic biological change."
+        # if abs(delta) > max_change:
+        #     predicted_hb = last_hb + np.sign(delta) * max_change
+        #     warning = (warning + " " if warning else "") + "Clamped to realistic biological change."
 
         anemia_type = HbPredictionUtil.classify_anemia(predicted_hb)
         symptoms = HbPredictionUtil.get_symptoms(anemia_type)
