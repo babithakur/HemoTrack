@@ -2,4 +2,4 @@ __pycache__/
 app/static/uploads/*
 app/static/histograms/*
 app/static/preprocessed/*
-config.py
+
